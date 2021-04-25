@@ -9,7 +9,7 @@ namespace lib.obj
     class ListHelper
     {
         /// <summary>
-        /// 元素前移
+        /// 元素前移，适用于数据变化关联的情况
         /// </summary>
         /// <param name="list"></param>
         /// <param name="index"></param>
@@ -26,7 +26,7 @@ namespace lib.obj
         }//Last
 
         /// <summary>
-        /// 元素后移
+        /// 元素后移，适用于数据变化关联的情况
         /// </summary>
         /// <param name="list"></param>
         /// <param name="index"></param>
