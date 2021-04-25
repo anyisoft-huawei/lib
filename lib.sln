@@ -31,6 +31,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "atest", "atest\atest.csproj
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "lib.mvvm", "lib.mvvm\lib.mvvm.csproj", "{82F76F15-A714-400A-A5C3-CE67BEF4EA31}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "lib.icv", "lib.icv\lib.icv.csproj", "{1E32CCA8-E6A3-4533-A776-34C173494330}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -93,6 +95,10 @@ Global
 		{82F76F15-A714-400A-A5C3-CE67BEF4EA31}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{82F76F15-A714-400A-A5C3-CE67BEF4EA31}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{82F76F15-A714-400A-A5C3-CE67BEF4EA31}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1E32CCA8-E6A3-4533-A776-34C173494330}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1E32CCA8-E6A3-4533-A776-34C173494330}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1E32CCA8-E6A3-4533-A776-34C173494330}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1E32CCA8-E6A3-4533-A776-34C173494330}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,66 +1,51 @@
 ﻿using System;
 using System.IO;
 using System.Xml.Serialization;
+using System.Xml;
 
 namespace lib.file
 {
-    public class XmlHelper
+
+    /// <summary>
+    /// xml帮助类
+    /// </summary>
+    public static class XmlHelper
     {
-        public XmlHelper() { }
 
         /// <summary>
         /// 反序列化
         /// </summary>
-        /// <param name="type">对象类型</param>
-        /// <param name="filename">文件路径</param>
+        /// <param name="_file">文件路径</param>
         /// <returns></returns>
-        public static object Load(Type type, string filename)
+        public static T CreateFromXml<T>(string _file)
         {
-            FileStream fs = null;
+            var xml = XmlReader.Create(_file);
             try
             {
-                // open the stream...
-                fs = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-                XmlSerializer serializer = new XmlSerializer(type);
-                return serializer.Deserialize(fs);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
+                return (T)new XmlSerializer(typeof(T)).Deserialize(xml);
             }
             finally
             {
-                if (fs != null)
-                    fs.Close();
+                xml.Close();
             }
         }
-
 
         /// <summary>
         /// 序列化
         /// </summary>
-        /// <param name="obj">对象</param>
-        /// <param name="filename">文件路径</param>
-        public static void Save(object obj, string filename)
+        /// <param name="_t">泛型</param>
+        /// <param name="_file">文件路径</param>
+        public static void SaveToXml<T>(this T _t, string _file)
         {
-            FileStream fs = null;
-            // serialize it...
+            var xml = XmlWriter.Create(_file);
             try
             {
-                fs = new FileStream(filename, FileMode.Create, FileAccess.Write, FileShare.ReadWrite);
-                XmlSerializer serializer = new XmlSerializer(obj.GetType());
-                serializer.Serialize(fs, obj);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
+                new XmlSerializer(_t.GetType()).Serialize(xml, _t);
             }
             finally
             {
-                if (fs != null)
-                    fs.Close();
+                xml.Close();
             }
-
         }
 
     }

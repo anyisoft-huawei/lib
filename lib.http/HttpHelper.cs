@@ -3,11 +3,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Web;
+using System.Web.Caching;
 
 namespace lib.http
 {
+
+    /// <summary>
+    /// HttpContextBase 帮助类
+    /// </summary>
     public static class HttpHelper
     {
+
+        #region 编码
 
         /// <summary>
         /// URL字符编码
@@ -30,6 +37,10 @@ namespace lib.http
         {
             return string.IsNullOrEmpty(value) ? "" : _h.Server.UrlDecode(value);
         }
+
+        #endregion
+
+        #region Cookie
 
         /// <summary>
         /// 读取Cookie
@@ -132,11 +143,25 @@ namespace lib.http
             _h.Response.AppendCookie(cookie);
         }
 
+        #endregion
+
+        #region 参数
+
+        /// <summary>
+        /// 请求是否来自post
+        /// </summary>
+        /// <param name="_h"></param>
+        /// <returns></returns>
         public static bool IsPost(this HttpContextBase _h)
         {
             return _h.Request.HttpMethod.Equals("POST");
         }
 
+        /// <summary>
+        /// 请求是否来自get
+        /// </summary>
+        /// <param name="_h"></param>
+        /// <returns></returns>
         public static bool IsGet(this HttpContextBase _h)
         {
             return _h.Request.HttpMethod.Equals("GET");
@@ -224,6 +249,8 @@ namespace lib.http
             return "".Equals(val) ? _h.GetForm(key) : val;
         }
 
+        #endregion
+
         /// <summary>
         /// 获得当前页面客户端的IP
         /// </summary>
@@ -240,6 +267,82 @@ namespace lib.http
             return result;
         }
 
+        #region 缓存
+
+        /// <summary>
+        /// 创建缓存
+        /// </summary>
+        /// <param name="_h"></param>
+        /// <param name="key">缓存key</param>
+        /// <param name="obj">缓存对象</param>
+        public static void InsertCache(this HttpContextBase _h, string key, object obj)
+        {
+            _h.Cache.Insert(key, obj);
+        }
+
+        /// <summary>
+        /// 创建缓存, 并添加文件依赖
+        /// </summary>
+        /// <param name="_h"></param>
+        /// <param name="key">缓存key</param>
+        /// <param name="obj">缓存对象</param>
+        /// <param name="_file">文件绝对路径</param>
+        public static void InsertCache(this HttpContextBase _h, string key, object obj, string _file)
+        {
+            _h.Cache.Insert(key, obj, new CacheDependency(_file));
+        }
+
+        /// <summary>
+        /// 创建缓存,并设置过期时间过期
+        /// </summary>
+        /// <param name="_h"></param>
+        /// <param name="key">缓存key</param>
+        /// <param name="obj">缓存对象</param>
+        /// <param name="expires">过期时间(分钟)</param>
+        public static void InsertCache(this HttpContextBase _h, string key, object obj, int expires)
+        {
+            _h.Cache.Insert(key, obj, null, Cache.NoAbsoluteExpiration, new TimeSpan(0, expires, 0));
+        }
+
+        /// <summary>
+        /// 获取缓存对象
+        /// </summary>
+        /// <param name="_h"></param>
+        /// <param name="key">缓存key</param>
+        /// <returns>缓存对象</returns>
+        public static object GetCache(this HttpContextBase _h, string key)
+        {
+            if (string.IsNullOrEmpty(key))
+            {
+                return null;
+            }
+            return _h.Cache.Get(key);
+        }
+
+        /// <summary>
+        /// 获取缓存对象
+        /// </summary>
+        /// <typeparam name="T">泛型</typeparam>
+        /// <param name="_h"></param>
+        /// <param name="key">缓存key</param>
+        /// <returns></returns>
+        public static T GetCache<T>(this HttpContextBase _h, string key)
+        {
+            object obj = _h.GetCache(key);
+            return obj == null ? default : (T)obj;
+        }
+
+        /// <summary>
+        /// 移除缓存
+        /// </summary>
+        /// <param name="_h"></param>
+        /// <param name="key">缓存key</param>
+        public static void RemoveCache(this HttpContextBase _h, string key)
+        {
+            _h.Cache.Remove(key);
+        }
+
+        #endregion
 
 
     }
