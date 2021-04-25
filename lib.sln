@@ -27,6 +27,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "lib.websocket", "lib.WebSoc
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "lib.cache", "lib.cache\lib.cache.csproj", "{70287AB7-C269-45B8-8FA1-771B1E3A53F4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "atest", "atest\atest.csproj", "{A69A6C86-94DA-4837-8D75-BEBA82E7FAEF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "lib.mvvm", "lib.mvvm\lib.mvvm.csproj", "{82F76F15-A714-400A-A5C3-CE67BEF4EA31}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -81,6 +85,14 @@ Global
 		{70287AB7-C269-45B8-8FA1-771B1E3A53F4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{70287AB7-C269-45B8-8FA1-771B1E3A53F4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{70287AB7-C269-45B8-8FA1-771B1E3A53F4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A69A6C86-94DA-4837-8D75-BEBA82E7FAEF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A69A6C86-94DA-4837-8D75-BEBA82E7FAEF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A69A6C86-94DA-4837-8D75-BEBA82E7FAEF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A69A6C86-94DA-4837-8D75-BEBA82E7FAEF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{82F76F15-A714-400A-A5C3-CE67BEF4EA31}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{82F76F15-A714-400A-A5C3-CE67BEF4EA31}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{82F76F15-A714-400A-A5C3-CE67BEF4EA31}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{82F76F15-A714-400A-A5C3-CE67BEF4EA31}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
