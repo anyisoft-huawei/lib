@@ -6,6 +6,10 @@ using System.Text;
 
 namespace lib.obj
 {
+
+    /// <summary>
+    /// 对象转换帮助类
+    /// </summary>
    public static class ClassHelper
     {
 
@@ -28,7 +32,6 @@ namespace lib.obj
             return t;
         }
 
-     
         /// <summary>
         /// 获取常量值集合
         /// </summary>
@@ -62,7 +65,7 @@ namespace lib.obj
         /// <param name="_o">对象</param>
         /// <param name="name">成员名称</param>
         /// <param name="value">值</param>
-        public static bool SetValue(object _o, string name,object value)
+        public static bool SetValue(object _o, string name, object value)
         {
             var i = _o.GetType().GetField(name);
             if (i == null) return false;
@@ -71,15 +74,19 @@ namespace lib.obj
         }
 
         /// <summary>
-        /// 指定类型的字段将指定对象的字段转为字典
+        /// 将类字段/属性转为字典集合
         /// </summary>
-        /// <param name="os"></param>
-        /// <param name="od"></param>
+        /// <param name="t"></param>
         /// <returns></returns>
         public static Dictionary<string, string> ToDictionary<T>(T t)
         {
             var d = new Dictionary<string, string>();
             foreach (FieldInfo i in t.GetType().GetFields())
+            {
+                var v = i.GetValue(t);
+                d.Add(i.Name, v == null ? "" : v.ToString());
+            }
+            foreach (PropertyInfo i in t.GetType().GetProperties())
             {
                 var v = i.GetValue(t);
                 d.Add(i.Name, v == null ? "" : v.ToString());
