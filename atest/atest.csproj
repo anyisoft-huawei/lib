@@ -48,8 +48,13 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <Compile Include="dome.lib.db.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\lib.db\lib.db.csproj">
+      <Project>{8f2fad69-9098-41f9-b728-469a7fd76d35}</Project>
+      <Name>lib.db</Name>
+    </ProjectReference>
     <ProjectReference Include="..\lib.file\lib.file.csproj">
       <Project>{f10563ef-e014-4805-be29-61e2cce731d5}</Project>
       <Name>lib.file</Name>
@@ -57,6 +62,10 @@
     <ProjectReference Include="..\lib.icv\lib.icv.csproj">
       <Project>{1e32cca8-e6a3-4533-a776-34c173494330}</Project>
       <Name>lib.icv</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\lib.object\lib.obj.csproj">
+      <Project>{d77bd4ed-3386-4fd6-bb34-163c459a6c6a}</Project>
+      <Name>lib.obj</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
