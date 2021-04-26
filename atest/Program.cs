@@ -16,20 +16,8 @@ namespace atest
             try
             {
 
-                var v = ImageHelper.GetSizeForProduct(500, 100, 120);
-                Console.Out.WriteLine(string.Format("500, 100, 120:{0},{1},{2}", v.Width, v.Height, v.Width * v.Height));
-                v = ImageHelper.GetSizeForProduct(1800, 1600, 120);
-                Console.Out.WriteLine(string.Format("1800, 1600, 120:{0},{1},{2}", v.Width, v.Height, v.Width * v.Height));
-                v = ImageHelper.GetSizeForProduct(1500, 600, 120);
-                Console.Out.WriteLine(string.Format("1500, 600, 120:{0},{1},{2}", v.Width, v.Height, v.Width * v.Height));
-                v = ImageHelper.GetSizeForProduct(300, 500, 120);
-                Console.Out.WriteLine(string.Format("300, 500, 120:{0},{1},{2}", v.Width, v.Height, v.Width * v.Height));
-                v = ImageHelper.GetSizeForProduct(500, 500, 120);
-                Console.Out.WriteLine(string.Format("500, 500, 120:{0},{1},{2}", v.Width, v.Height, v.Width * v.Height));
-
-
-
-
+                Console.Out.WriteLine(string.Format(":{0}", Get(3)[1].i));
+                Console.Out.WriteLine(string.Format(":{0}", Get(3)[0].i));
             }
             catch (Exception e)
             {
@@ -37,5 +25,29 @@ namespace atest
             }
             Console.In.Read();
         }
+
+        public static test[] Get(int i)
+        {
+            using (var a = new test())
+            using (var t = new test())
+            {
+                t.i = i;
+                return new test[] { t, a };
+            }
+        }
+
+        public class test : IDisposable
+        {
+            public int i = 0;
+            public void Dispose()
+            {
+                i++;
+            }
+        }
+
+
     }
+
+
+
 }

@@ -88,11 +88,11 @@ namespace lib.obj
         }
 
         /// <summary>
-        /// 将数据表转为对象集合
+        /// 将数据表转为类集合(仅为字段赋值)
         /// </summary>
         /// <param name="dt">数据表</param>
         /// <returns></returns>
-        public static List<T> DataTableToList<T>(System.Data.DataTable dt)
+        public static List<T> ToClassFields<T>(this System.Data.DataTable dt)
         {
             var list = new List<T>();
             if (dt != null)
@@ -100,6 +100,51 @@ namespace lib.obj
                 foreach (System.Data.DataRow dr in dt.Rows)
                 {
                     var t = Activator.CreateInstance<T>();
+                    foreach (FieldInfo i in t.GetType().GetFields())
+                    {
+                        if (dt.Columns.Contains(i.Name))
+                        {
+                            object value = dr[i.Name];
+                            Type tmpType = Nullable.GetUnderlyingType(i.FieldType) ?? i.FieldType;
+                            object safeValue = (value == null) ? null : Convert.ChangeType(value, tmpType);
+                            if (value != DBNull.Value)
+                            {
+                                i.SetValue(t, safeValue);
+                            }
+                        }
+                    }
+                    list.Add(t);
+                }
+            }
+            return list;
+        }
+
+        /// <summary>
+        /// 将数据表转为类集合(为字段和属性赋值)
+        /// </summary>
+        /// <param name="dt">数据表</param>
+        /// <returns></returns>
+        public static List<T> ToClassFieldsPropertyies<T>(this System.Data.DataTable dt)
+        {
+            var list = new List<T>();
+            if (dt != null)
+            {
+                foreach (System.Data.DataRow dr in dt.Rows)
+                {
+                    var t = Activator.CreateInstance<T>();
+                    foreach (PropertyInfo i in t.GetType().GetProperties())
+                    {
+                        if (dt.Columns.Contains(i.Name))
+                        {
+                            object value = dr[i.Name];
+                            Type tmpType = Nullable.GetUnderlyingType(i.PropertyType) ?? i.PropertyType;
+                            object safeValue = (value == null) ? null : Convert.ChangeType(value, tmpType);
+                            if (value != DBNull.Value)
+                            {
+                                i.SetValue(t, safeValue);
+                            }
+                        }
+                    }
                     foreach (FieldInfo i in t.GetType().GetFields())
                     {
                         if (dt.Columns.Contains(i.Name))

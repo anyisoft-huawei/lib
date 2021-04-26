@@ -4,15 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace lib.cache
+namespace lib.db
 {
- public class Class1
- {
-  static void ConvertASCII()
-  {
-
-           
-
-        }
-  }
+    public class Class1
+    {
+    }
 }

@@ -47,7 +47,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CacheManager.cs" />
-    <Compile Include="Class1.cs" />
     <Compile Include="FileCache.cs" />
     <Compile Include="ICache.cs" />
     <Compile Include="LocalCache.cs" />

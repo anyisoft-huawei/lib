@@ -43,19 +43,13 @@ namespace lib.icv
         /// <returns></returns>
         public static byte[] ToBytes(this Image img, ImageCodecInfo ici, long quality = 100L)
         {
-            var ms = new MemoryStream();
-            var _eps = new EncoderParameters(1);
-            try
+            using (var _eps = new EncoderParameters(1)) 
+            using (var ms = new MemoryStream())
             {
                 _eps.Param[0] = new EncoderParameter(Encoder.Quality, quality);//创建质量参数
                 img.Save(ms, ici, _eps);
                 var bs = ms.ToArray();
-                _eps.Dispose();
                 return bs;
-            }
-            finally
-            {
-                ms.Close();
             }
         }
 
@@ -67,16 +61,11 @@ namespace lib.icv
         /// <returns></returns>
         public static byte[] ToBytes(this Image img, ImageFormat format)
         {
-            var ms = new MemoryStream();
-            try
+            using (var ms = new MemoryStream())
             {
                 img.Save(ms, format);
                 var bs = ms.ToArray();
                 return bs;
-            }
-            finally
-            {
-                ms.Close();
             }
         }
         
@@ -89,10 +78,11 @@ namespace lib.icv
         /// <param name="quality">图像质量</param>
         public static void ToFile(this Image img, string _file, ImageCodecInfo ici, long quality = 100L)
 		{
-			EncoderParameters parameters = new EncoderParameters(1);
-			parameters.Param[0] = new EncoderParameter(Encoder.Quality, quality);//创建质量参数
-            img.Save(_file, ici, parameters);
-			parameters.Dispose();
+            using (var parameters = new EncoderParameters(1))
+            {
+                parameters.Param[0] = new EncoderParameter(Encoder.Quality, quality);//创建质量参数
+                img.Save(_file, ici, parameters);
+            }
 		}
 
         /// <summary>
