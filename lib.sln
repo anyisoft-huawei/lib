@@ -35,6 +35,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "lib.icv", "lib.icv\lib.icv.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "lib.db", "lib.db\lib.db.csproj", "{8F2FAD69-9098-41F9-B728-469A7FD76D35}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "lib.office", "lib.office\lib.office.csproj", "{C31F0486-1E29-4378-B2A8-A36F0D4B3F03}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -105,6 +107,10 @@ Global
 		{8F2FAD69-9098-41F9-B728-469A7FD76D35}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8F2FAD69-9098-41F9-B728-469A7FD76D35}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8F2FAD69-9098-41F9-B728-469A7FD76D35}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C31F0486-1E29-4378-B2A8-A36F0D4B3F03}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C31F0486-1E29-4378-B2A8-A36F0D4B3F03}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C31F0486-1E29-4378-B2A8-A36F0D4B3F03}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C31F0486-1E29-4378-B2A8-A36F0D4B3F03}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -67,21 +67,6 @@ namespace lib.convert
 
 
         /// <summary>
-        /// 将文本转为安全正则文本
-        /// </summary>
-        /// <param name="text">不文本</param>
-        /// <returns>转换后的文本</returns>
-        public static string ToSafeRegexText(this string text)
-        {
-            var val = text;           
-            foreach (var item in "\\^$*+?{}.()|[]")
-            {
-                if (val.Contains(item)) val = val.Replace(item.ToString(), "\\" + item);
-            }
-            return val;
-        }
-
-        /// <summary>
         /// 判断文本的IP类型，ipv4返回4，ipv6返回6，不为ip返回0
         /// </summary>
         /// <param name="text">要检查的字符串</param>
@@ -90,6 +75,26 @@ namespace lib.convert
         {
             return Regex.IsMatch(text, @"^\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3}$") ? 4 :
                 (Regex.IsMatch(text, @"^\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3}$") ? 6 : 0);
+        }
+
+        /// <summary>
+        /// 判断文本是否为邮箱地址
+        /// </summary>
+        /// <param name="text">要判断的文本</param>
+        /// <returns></returns>
+        public static bool IsEmailAddress(string text)
+        {
+            return Regex.IsMatch(text.ToLower(), @"^[a-z0-9]+@[a-z0-9]+\.[a-z]+$");
+        }
+
+        /// <summary>
+        /// 判断文本是否为url地址
+        /// </summary>
+        /// <param name="text"></param>
+        /// <returns></returns>
+        public static bool IsUrlAddress(string text)
+        {
+            return Regex.IsMatch(text.ToLower(), @"^(http|https)\:([a-z0-9]+\.){1,2}[a-z0-9]+(\/[a-z0-9]+)*(\?([a-z0-9]+)+|\/[a-z0-9]+\.[a-z0-9]+)?$");
         }
 
 
@@ -101,7 +106,7 @@ namespace lib.convert
         /// <returns></returns>
         public static bool HasAllChar(this string value, string symbol)
         {
-            return !Regex.IsMatch(value, string.Format("[^{0}]", symbol.ToSafeRegexText()));
+            return !Regex.IsMatch(value, string.Format("[^{0}]", Regex.Escape(symbol)));
         }
 
         /// <summary>
@@ -112,7 +117,7 @@ namespace lib.convert
         /// <returns></returns>
         public static bool HasChar(string value, string symbol)
         {
-            return Regex.IsMatch(value, string.Format("[{0}]", symbol.ToSafeRegexText()));
+            return Regex.IsMatch(value, string.Format("[{0}]", Regex.Escape(symbol)));
         }
 
         /// <summary>
