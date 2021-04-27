@@ -10,13 +10,17 @@ using System.Reflection;
 
 namespace lib.db
 {
+
+    /// <summary>
+    /// sql帮助类
+    /// </summary>
     public static class SqlHelper
     {
 
         /// <summary>
         /// 以现有连接字符串初始化一个连接池打开的连接配置
         /// </summary>
-        /// <param name="_conntext"></param>
+        /// <param name="_conntext">数据库连接字符串</param>
         /// <param name="min">最小连接数</param>
         /// <param name="max">最大连接数</param>
         /// <returns>连接配置</returns>
@@ -34,7 +38,7 @@ namespace lib.db
         /// <summary>
         /// 执行SQL语句，返回影响的记录数
         /// </summary>
-        /// <param name="_conn">数据库连接</param>
+        /// <param name="_conn">已打开的数据库连接</param>
         /// <param name="sql">sql命令文本</param>
         /// <param name="_params">sql参数集</param>
         /// <param name="_type">sql命令类型</param>
@@ -55,7 +59,7 @@ namespace lib.db
         /// <summary>
         ///  执行SQL语句，返回影响的记录数
         /// </summary>
-        /// <param name="_conn">数据库连接</param>
+        /// <param name="_conn">数据库连接字符串</param>
         /// <param name="sql">sql命令文本</param>
         /// <param name="_params">sql参数集</param>
         /// <param name="_type">sql命令类型</param>
@@ -72,7 +76,7 @@ namespace lib.db
         /// <summary>
         ///  事务方式执行SQL语句，返回影响的记录数
         /// </summary>
-        /// <param name="_conn">数据库连接</param>
+        /// <param name="_conn">数据库连接字符串</param>
         /// <param name="sql">sql命令文本</param>
         /// <param name="_params">sql参数集</param>
         /// <param name="_type">sql命令类型</param>
@@ -100,7 +104,7 @@ namespace lib.db
         /// <summary>
         /// 执行SQL语句，并返回第一行第一列
         /// </summary>
-        /// <param name="_conn">数据库连接</param>
+        /// <param name="_conn">已打开的数据库连接</param>
         /// <param name="sql">sql命令文本</param>
         /// <param name="_params">sql参数集</param>
         /// <param name="_type">sql命令类型</param>
@@ -121,7 +125,7 @@ namespace lib.db
         /// <summary>
         ///  执行SQL语句，并返回第一行第一列
         /// </summary>
-        /// <param name="_conn">数据库连接</param>
+        /// <param name="_conn">数据库连接字符串</param>
         /// <param name="sql">sql命令文本</param>
         /// <param name="_params">sql参数集</param>
         /// <param name="_type">sql命令类型</param>
@@ -139,7 +143,7 @@ namespace lib.db
         /// <summary>
         /// 从数据库读取数据
         /// </summary>
-        /// <param name="_conn">数据库连接</param>
+        /// <param name="_conn">已打开的数据库连接</param>
         /// <param name="sql">sql命令文本</param>
         /// <param name="_params">sql参数集</param>
         /// <param name="_type">sql命令类型</param>
@@ -166,7 +170,7 @@ namespace lib.db
         /// <summary>
         /// 从数据库读取数据
         /// </summary>
-        /// <param name="_conn">数据库连接</param>
+        /// <param name="_conn">数据库连接字符串</param>
         /// <param name="sql">sql命令文本</param>
         /// <param name="_params">sql参数集</param>
         /// <param name="_type">sql命令类型</param>
@@ -184,7 +188,7 @@ namespace lib.db
         /// <summary>
         /// 从数据库读取数据
         /// </summary>
-        /// <param name="_conn">数据库连接</param>
+        /// <param name="_conn">已打开的数据库连接</param>
         /// <param name="sql">sql命令文本</param>
         /// <param name="_params">sql参数集</param>
         /// <param name="_type">sql命令类型</param>
@@ -210,7 +214,7 @@ namespace lib.db
         /// <summary>
         /// 从数据库读取数据
         /// </summary>
-        /// <param name="_conn">数据库连接</param>
+        /// <param name="_conn">数据库连接字符串</param>
         /// <param name="sql">sql命令文本</param>
         /// <param name="_params">sql参数集</param>
         /// <param name="_type">sql命令类型</param>
@@ -229,7 +233,7 @@ namespace lib.db
         /// <summary>
         /// 更新数据到数据库
         /// </summary>
-        /// <param name="_conn">数据库连接</param>
+        /// <param name="_conn">已打开的数据库连接</param>
         /// <param name="ds">要更新的数据</param>
         /// <param name="sql">sql命令文本</param>
         /// <param name="_params">sql参数集</param>
@@ -254,7 +258,7 @@ namespace lib.db
         /// <summary>
         /// 更新数据到数据库
         /// </summary>
-        /// <param name="_conn">数据库连接</param>
+        /// <param name="_conn">数据库连接字符串</param>
         /// <param name="ds">要更新的数据</param>
         /// <param name="sql">sql命令文本</param>
         /// <param name="_params">sql参数集</param>
@@ -272,7 +276,7 @@ namespace lib.db
         /// <summary>
         /// 事务方式更新数据到数据库
         /// </summary>
-        /// <param name="_conn">数据库连接</param>
+        /// <param name="_conn">数据库连接字符串</param>
         /// <param name="ds">要更新的数据</param>
         /// <param name="sql">sql命令文本</param>
         /// <param name="_params">sql参数集</param>
@@ -303,7 +307,7 @@ namespace lib.db
         /// <summary>
         /// 事务方式批量插入数据,映射列包含数据表中的全部列
         /// </summary>
-        /// <param name="_conn"></param>
+        /// <param name="_conn">已打开的数据库连接</param>
         /// <param name="dt">要插入的数据</param>
         /// <param name="tablename">数据库表名</param>
         public static void InsertTable(this SqlConnection _conn, DataTable dt, string tablename)
@@ -336,7 +340,7 @@ namespace lib.db
         /// <summary>
         /// 事务方式批量插入数据,映射列包含数据表中的全部列
         /// </summary>
-        /// <param name="_conn"></param>
+        /// <param name="_conn">数据库连接字符串</param>
         /// <param name="dt">要插入的数据</param>
         /// <param name="tablename">数据库表名</param>
         public static void InsertTable(string _conn, DataTable dt, string tablename)
@@ -351,7 +355,7 @@ namespace lib.db
         /// <summary>
         /// 事务方式批量插入数据,用指定列名映射列
         /// </summary>
-        /// <param name="_conn"></param>
+        /// <param name="_conn">已打开的数据库连接</param>
         /// <param name="dt">要插入的数据</param>
         /// <param name="tablename">数据库表名</param>
         /// <param name="nvs">映射关系：表列-数据库列</param>
@@ -385,7 +389,7 @@ namespace lib.db
         /// <summary>
         /// 事务方式批量插入数据,用指定列名映射列
         /// </summary>
-        /// <param name="_conn"></param>
+        /// <param name="_conn">数据库连接字符串</param>
         /// <param name="dt">要插入的数据</param>
         /// <param name="tablename">数据库表名</param>
         /// <param name="nvs">映射关系：表列-数据库列</param>
@@ -402,7 +406,7 @@ namespace lib.db
         /// <summary>
         /// 事务方式执行多条sql
         /// </summary>
-        /// <param name="_conn"></param>
+        /// <param name="_conn">已打开的数据库连接</param>
         /// <param name="sqls">sql集合</param>
         public static void TransSqlCollection(this SqlConnection _conn, string[] sqls)
         {
@@ -430,7 +434,7 @@ namespace lib.db
         /// <summary>
         /// 事务方式执行多条sql
         /// </summary>
-        /// <param name="_conn"></param>
+        /// <param name="_conn">数据库连接字符串</param>
         /// <param name="sqls">sql集合</param>
         public static void TransSqlCollection(string _conn, string[] sqls)
         {
@@ -445,7 +449,7 @@ namespace lib.db
         /// <summary>
         /// 事务方式执行多个参数集
         /// </summary>
-        /// <param name="_conn"></param>
+        /// <param name="_conn">已打开的数据库连接</param>
         /// <param name="sql">sql命令文本</param>
         /// <param name="_type">命令类型</param>
         /// <param name="_list">参数集集合</param>
@@ -477,7 +481,7 @@ namespace lib.db
         /// <summary>
         /// 事务方式执行多个参数集
         /// </summary>
-        /// <param name="_conn"></param>
+        /// <param name="_conn">数据库连接字符串</param>
         /// <param name="sql">sql命令文本</param>
         /// <param name="_type">命令类型</param>
         /// <param name="_list">参数集集合</param>
@@ -494,7 +498,8 @@ namespace lib.db
         /// <summary>
         /// 表是否存在
         /// </summary>
-        /// <param name="table"></param>
+        /// <param name="_conn">已打开的数据库连接</param>
+        /// <param name="table">表名</param>
         /// <returns></returns>
         public static bool HasTable(this SqlConnection _conn, string table)
         {
@@ -503,19 +508,57 @@ namespace lib.db
         }
 
         /// <summary>
+        /// 表是否存在
+        /// </summary>
+        /// <param name="_conn">数据库连接字符串</param>
+        /// <param name="table">表名</param>
+        /// <returns></returns>
+        public static bool HasTable(string _conn, string table)
+        {
+            using (var conn = new SqlConnection(_conn))
+            {
+                conn.Open();
+                return conn.HasTable(table);
+            }
+        }
+
+        /// <summary>
         /// 数据库是否存在
         /// </summary>
-        /// <param name="_conn"></param>
-        /// <param name="name"></param>
+        /// <param name="_conn">已打开的数据库连接</param>
+        /// <param name="name">数据库名</param>
         /// <returns></returns>
-        public static bool hasDataBase(this SqlConnection _conn, string name)
+        public static bool HasDataBase(this SqlConnection _conn, string name)
         {
             //v.InitialCatalog = "master";
             var o = _conn.Scalar(string.Format("select count(1) from sys.databases where name = '{0}'", name));
             return DBNull.Value == o ? false : Convert.ToInt32(o) > 0;
         }
 
+        /// <summary>
+        /// 数据库是否存在
+        /// </summary>
+        /// <param name="_conn">数据库连接字符串</param>
+        /// <param name="name">数据库名</param>
+        /// <returns></returns>
+        public static bool HasDataBase(string _conn, string name)
+        {
+            using (var conn = new SqlConnection(_conn))
+            {
+                conn.Open();
+                return conn.HasDataBase(name);
+            }
+        }
 
+        /// <summary>
+        /// 检测sql是否安全
+        /// </summary>
+        /// <param name="sql">要判断的字符串</param>
+        /// <returns>判断结果</returns>
+        public static bool IsSafeSql(this string sql)
+        {
+            return !System.Text.RegularExpressions.Regex.IsMatch(sql, @"[-|;|,|\/|\(|\)|\[|\]|\}|\{|%|@|\*|!|\']");
+        }
 
     }
 }

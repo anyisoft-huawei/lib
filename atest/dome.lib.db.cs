@@ -26,29 +26,30 @@ namespace atest
         //你可以这样调用
         public void Test2()
         {
-            var list = SqlHelper.Read(DB2, "select * from table where id=@id", new SqlParameter[] {
-                    new SqlParameter("@id", 1)
-                    //...
-                 }, CommandType.Text).ToClassFields<TestModle>();
+            var pm = new SqlParameter[] {
+                        new SqlParameter("@id", 1),
+                        new SqlParameter("@name", "name")
+            };
+            var list = SqlHelper.Read(DB2, "select * from table where id=@id and name=@name",pm, CommandType.Text).ToClassFields<TestModle>();
+            var list2 = SqlHelper.Read(DB2, "存储过程名", pm, CommandType.StoredProcedure).ToClassFields<TestModle>();
             //...
         }
         //你也可以这样调用
         public void Test()
         {
-            DataTable dt;
+            int dt;
             using (var conn = new SqlConnection(DB1))
             {
                 conn.Open();//需要显式打开
                 var trans = conn.BeginTransaction();//此处为示例，仅写才需要使用到事务
                 try
                 {
-                    dt = conn.Read("select * from table where id=@id", new SqlParameter[] {
-                         new SqlParameter("@id", 1)
-                        //...
-                    }, CommandType.Text);
+                    dt = conn.Query("insert into table (id,name) values(1,'name')", null, CommandType.Text, trans);
+                    dt = conn.Query("insert into table (id,name) values(2,'name')", null, CommandType.Text, trans);
+
                     trans.Commit();//此处为示例，仅写才需要使用到事务
-                    //
-                    TestModle tm = dt.ToClassFields<TestModle>()[0];
+                    
+                    //...
                 }
                 catch (Exception)
                 {
