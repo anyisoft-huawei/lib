@@ -6,6 +6,10 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 namespace lib.convert
 {
+
+    /// <summary>
+    /// 拼音帮助类
+    /// </summary>
     public static class Pinyin
     {
         //定义拼音区编码数组

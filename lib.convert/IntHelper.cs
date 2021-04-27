@@ -6,6 +6,10 @@ using System.Threading.Tasks;
 
 namespace lib.convert
 {
+
+    /// <summary>
+    /// int帮助类
+    /// </summary>
     public static class IntHelper
     {
 
@@ -32,9 +36,21 @@ namespace lib.convert
             return sb.ToString();
         }
 
+        /// <summary>
+        /// 小写数字
+        /// </summary>
         public static readonly string[] _GBK = { "〇", "一", "二", "三", "四", "五", "六", "七", "八", "九" };
+        /// <summary>
+        /// 小写单位
+        /// </summary>
         public static readonly string[] _GBKU = { "个", "十", "百", "千", "万", "十", "百", "千", "亿" };
+        /// <summary>
+        /// 大写数字
+        /// </summary>
         public static readonly string[] _GBT = { "零", "壹", "贰", "叁", "肆", "伍", "陆", "柒", "捌", "玖" };
+        /// <summary>
+        /// 大写单位
+        /// </summary>
         public static readonly string[] _GBTU = { "个", "拾", "佰", "仟", "萬", "拾", "佰", "仟", "亿" };
 
         /// <summary>
