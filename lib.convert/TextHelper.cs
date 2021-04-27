@@ -14,280 +14,267 @@ namespace lib.convert
     {
 
         /// <summary>
-        /// 转换为int，并在空值时返回默认值
+        /// 将不安全文本转换为int，并在文本中不包含数字时返回默认值
         /// </summary>
-        /// <param name="_input"></param>
-        /// <param name="defaul"></param>
-        /// <returns></returns>
-        public static int ToInt(this string _input, int defaul = 0)
+        /// <param name="text">不安全文本</param>
+        /// <param name="defaul">默认值</param>
+        /// <returns>转换后的值</returns>
+        public static int ToInt(this string text, int defaul = 0)
         {
-            if (string.IsNullOrEmpty(_input)) return defaul;
-            var match = Regex.Match(_input, @"\d+");
-            return match.Success ? int.Parse(_input) : defaul;
+            if (string.IsNullOrEmpty(text)) return defaul;
+            var match = Regex.Match(text, @"\d+");
+            return match.Success ? int.Parse(match.Value) : defaul;
         }
 
         /// <summary>
-        /// 是否为ip
+        /// 将不安全文本转换为long，并在文本中不包含数字时返回默认值
         /// </summary>
-        /// <param name="_input"></param>
-        /// <returns></returns>
-        public static bool IsIP(this string _input)
+        /// <param name="text">不安全文本</param>
+        /// <param name="defaul">默认值</param>
+        /// <returns>转换后的值</returns>
+        public static long ToLong(this string text, long defaul = 0)
         {
-            return Regex.IsMatch(_input, @"^((2[0-4]\d|25[0-5]|[01]?\d\d?)\.){3}(2[0-4]\d|25[0-5]|[01]?\d\d?)$");
+            if (string.IsNullOrEmpty(text)) return defaul;
+            var match = Regex.Match(text, @"\d+");
+            return match.Success ? long.Parse(match.Value) : defaul;
+        }
+
+        /// <summary>
+        /// 将不安全文本转换为float，并在文本中不包含数字时返回默认值
+        /// </summary>
+        /// <param name="text">不安全文本</param>
+        /// <param name="defaul">默认值</param>
+        /// <returns>转换后的值</returns>
+        public static float ToDouble(this string text, float defaul = 0)
+        {
+            if (string.IsNullOrEmpty(text)) return defaul;
+            var match = Regex.Match(text, @"\d+\.\d+");
+            return match.Success ? float.Parse(match.Value) : defaul;
+        }
+
+        /// <summary>
+        /// 将不安全文本转换为double，并在文本中不包含数字时返回默认值
+        /// </summary>
+        /// <param name="text">不安全文本</param>
+        /// <param name="defaul">默认值</param>
+        /// <returns>转换后的值</returns>
+        public static double ToDouble(this string text, double defaul = 0)
+        {
+            if (string.IsNullOrEmpty(text)) return defaul;
+            var match = Regex.Match(text, @"\d+\.\d+");
+            return match.Success ? double.Parse(match.Value) : defaul;
         }
 
 
         /// <summary>
-        /// 文本是否包含不在另一文本的字
+        /// 将文本转为安全正则文本
         /// </summary>
-        /// <param name="value"></param>
-        /// <param name="symbol"></param>
-        public static bool NotHasChar(string value, string symbol)
+        /// <param name="text">不文本</param>
+        /// <returns>转换后的文本</returns>
+        public static string ToSafeRegexText(this string text)
         {
-            if (!string.IsNullOrEmpty(value))
+            var val = text;           
+            foreach (var item in "\\^$*+?{}.()|[]")
             {
-                foreach (var item in value)
-                {
-                    if (symbol.IndexOf(item) < 0) return true;
-                }
+                if (val.Contains(item)) val = val.Replace(item.ToString(), "\\" + item);
             }
-            return false;
+            return val;
         }
 
         /// <summary>
-        /// 文本是否包含另一文本的字
+        /// 判断文本的IP类型，ipv4返回4，ipv6返回6，不为ip返回0
         /// </summary>
-        /// <param name="value"></param>
-        /// <param name="symbol"></param>
+        /// <param name="text">要检查的字符串</param>
+        /// <returns>类型数字</returns>
+        public static int IsIpVersion(string text)
+        {
+            return Regex.IsMatch(text, @"^\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3}$") ? 4 :
+                (Regex.IsMatch(text, @"^\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3}$") ? 6 : 0);
+        }
+
+
+        /// <summary>
+        /// 文本是否包含另一文本(symbol)中的所有字符
+        /// </summary>
+        /// <param name="value">要检查的字符串</param>
+        /// <param name="symbol">字符集合</param>
+        /// <returns></returns>
+        public static bool HasAllChar(this string value, string symbol)
+        {
+            return !Regex.IsMatch(value, string.Format("[^{0}]", symbol.ToSafeRegexText()));
+        }
+
+        /// <summary>
+        /// 文本是否存在另一文本(symbol)中的字符
+        /// </summary>
+        /// <param name="value">要检查的字符串</param>
+        /// <param name="symbol">字符集合</param>
         /// <returns></returns>
         public static bool HasChar(string value, string symbol)
         {
-            if (!string.IsNullOrEmpty(value))
-            {
-                for (int i = 0; i < value.Length; i++)
-                {
-                    if (symbol.IndexOf(value[i]) >= 0) return true;
-                }
-            }
-            return false;
-        }
-        /// <summary>
-        /// 文本是否包含另一文本的字
-        /// </summary>
-        /// <param name="value"></param>
-        /// <param name="count"></param>
-        /// <param name="symbol"></param>
-        /// <returns></returns>
-        public static bool HasChar(string value, int count, string symbol)
-        {
-            if (!string.IsNullOrEmpty(value))
-            {
-                if (count > value.Length) count = value.Length;
-                for (int i = 0; i < count; i++)
-                {
-                    if (symbol.IndexOf(value[i]) >= 0) return true;
-                }
-            }
-            return false;
+            return Regex.IsMatch(value, string.Format("[{0}]", symbol.ToSafeRegexText()));
         }
 
         /// <summary>
-        /// 反转字符串顺序（包括32位编码字符）
+        /// 反转(包含32位编码的)字符串顺序
         /// </summary>
-        /// <param name="str"></param>
-        /// <returns></returns>
-        public static string Reverse(string str)
+        /// <param name="text">字符串</param>
+        /// <returns>反转结果</returns>
+        public static string Reverse32(this string text)
         {
-            if (string.IsNullOrEmpty(str)) return "";
-            string[] ss = GetCharsArray(str);
-            StringBuilder sb = new StringBuilder();
-            for (int i = ss.Length - 1; i >= 0; i--)
+            if (string.IsNullOrEmpty(text)) return "";
+            byte[] bs = Encoding.UTF32.GetBytes(text);
+            byte[] rbs = new byte[bs.Length];
+            int i = 0;//开始的字符
+            int j = bs.Length - 4;//最后的字符
+            while (i < bs.Length)
             {
-                sb.Append(ss[i]);
+                Buffer.BlockCopy(bs, i, rbs, j, 4);
+                i += 4;//bs下一个字符
+                j -= 4;//rbs上一个字符
             }
-            return sb.ToString();
+            return Encoding.UTF32.GetString(rbs);
         }
 
         /// <summary>
-        /// 获取一个单个字的集合
+        /// 将(包含32位编码的)字符串转为字符集合
         /// </summary>
-        /// <param name="str"></param>
+        /// <param name="text"></param>
         /// <returns></returns>
-        public static string[] GetCharsArray(string str)
+        public static string[] ToChar32Array(this string text)
         {
-            if (!string.IsNullOrEmpty(str))
+            if (!string.IsNullOrEmpty(text))
             {
-                byte[] bstr = Encoding.UTF32.GetBytes(str);//全部字
-                byte[] btmp = new byte[4];//一个字
-                int strCount = bstr.Length / 4;
-                string[] strs = new string[strCount];
-                for (int pstr = 0; pstr < bstr.Length / 4; pstr++)
+                byte[] bs = Encoding.UTF32.GetBytes(text);
+                byte[] tmp = new byte[4];//一个字
+                int len = bs.Length / 4;
+                string[] vs = new string[len];
+                for (int p = 0; p < len; p++)
                 {
-                    Buffer.BlockCopy(bstr, pstr * 4, btmp, 0, 4);
-                    strs[pstr] = Encoding.UTF32.GetString(btmp);
+                    Buffer.BlockCopy(bs, p * 4, tmp, 0, 4);
+                    vs[p] = Encoding.UTF32.GetString(tmp);
                 }
-                return strs;
+                return vs;
             }
             return null;
         }
-        /// <summary>
-        /// 获取一个单个字的集合
-        /// </summary>
-        /// <param name="str"></param>
-        /// <returns></returns>
-        public static List<string> GetChars(string value)
-        {
-            if (string.IsNullOrEmpty(value)) return null;
-            byte[] bs = Encoding.UTF32.GetBytes(value);//全部字
-            byte[] btmp = new byte[4];//一个字
-            var vs = new List<string>();
-            for (int i = 0; i < bs.Length; i += 4)
-            {
-                Buffer.BlockCopy(bs, i, btmp, 0, 4);
-                vs.Add(Encoding.UTF32.GetString(btmp));
-            }
-            return vs;
-        }
 
         /// <summary>
-        /// 获取并删除指定字数的字符
+        /// 获取指定字数的字符串,并从源字符串中删除获取的字符串
         /// </summary>
-        /// <param name="value"></param>
-        /// <param name="Count"></param>
+        /// <param name="text">字符串</param>
+        /// <param name="len">长度</param>
         /// <returns></returns>
-        public static string GetSubString(ref string value, int Count)
+        public static string GetSubString(ref string text, int len)
         {
-            byte[] bs = Encoding.UTF32.GetBytes(value);//全部字
-            int home = Count * 4;
+            byte[] bs = Encoding.UTF32.GetBytes(text);//全部字
+            int home = len * 4;
             if (home < bs.Length)
             {
-                value = Encoding.UTF32.GetString(bs, home, bs.Length - home);
+                text = Encoding.UTF32.GetString(bs, home, bs.Length - home);
                 return Encoding.UTF32.GetString(bs, 0, home);
             }
             else
             {
-                var val = value;
-                value = "";
-                return val;
-            }
-        }
-        /// <summary>
-        /// 获取并删除指定字数的字符，重设删除的字符数
-        /// </summary>
-        /// <param name="value"></param>
-        /// <param name="Count"></param>
-        /// <returns></returns>
-        public static string GetSubString(ref string value, ref int Count)
-        {
-            byte[] bs = Encoding.UTF32.GetBytes(value);//全部字
-            int home = Count * 4;
-            if (home < bs.Length)
-            {
-                value = Encoding.UTF32.GetString(bs, home, bs.Length - home);
-                return Encoding.UTF32.GetString(bs, 0, home);
-            }
-            else
-            {
-                var val = value;
-                value = "";
-                Count = bs.Length / 4;
+                var val = text;
+                text = "";
                 return val;
             }
         }
 
         /// <summary>
-        /// 截切指定字数的字符，并返回多余的字符
-        /// </summary>
-        /// <param name="value"></param>
-        /// <param name="HomeCount"></param>
-        /// <returns></returns>
-        public static string GetEndString(ref string value, int HomeCount)
-        {
-            byte[] bs = Encoding.UTF32.GetBytes(value);//全部字
-            int home = HomeCount * 4;
-            if (home < bs.Length)
-            {
-                value = Encoding.UTF32.GetString(bs, 0, home);
-                return Encoding.UTF32.GetString(bs, home, bs.Length - home);
-            }
-            else
-            {
-                return "";
-            }
-        }
-
-        /// <summary>
-        /// 获取字符串的长度
+        /// 获取(包含32位编码的)字符串的长度
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
-        public static int GetCount(string value)
+        public static int GetLength32(this string value)
         {
             if (string.IsNullOrEmpty(value)) return 0;
             return Encoding.UTF32.GetBytes(value).Length / 4;
         }
 
-
         /// <summary>
-        /// 切断字符串，并返回多余的字符
+        /// 截切指定字数的字符串，并返回截切的字符串
         /// </summary>
-        /// <param name="info"></param>
-        /// <param name="symbol"></param>
+        /// <param name="text">字符串</param>
+        /// <param name="len">长度</param>
         /// <returns></returns>
-        public static string GetEndString(ref string info, string symbol)
+        public static string CutEndString(ref string text, int len)
         {
-            if (string.IsNullOrEmpty(info)) return "";
-            int p = info.IndexOf(symbol);
-            if (p >= 0)
-            {
-                int ep = p + symbol.Length;//尾部字符串的起点
-                string end = (ep < info.Length) ? info.Substring(ep) : "";
-                info = info.Substring(0, p);
-                return end;
-            }
-            return "";
-        }
-        /// <summary>
-        /// 切断字符串，返回之前的字符串
-        /// </summary>
-        /// <param name="info"></param>
-        /// <param name="symbol"></param>
-        /// <returns></returns>
-        public static string GetHomeString(ref string info, string symbol)
-        {
-            if (string.IsNullOrEmpty(info)) return "";
-            int p = info.IndexOf(symbol);
-            if (p >= 0)
-            {
-                string home = info.Substring(0, p);
-                int ep = p + symbol.Length;
-                info = ep < info.Length ? info.Substring(ep) : "";
-                return home;
-            }
-            return "";
+            byte[] bs = Encoding.UTF32.GetBytes(text);//全部字
+            int home = len * 4;
+            if (home >= bs.Length) return "";
+            text = Encoding.UTF32.GetString(bs, 0, home);
+            return Encoding.UTF32.GetString(bs, home, bs.Length - home);
         }
 
         /// <summary>
-        /// 反向查找并切断字符串
+        /// 从指定字符位置截切字符串，并返回截切的字符串
         /// </summary>
-        /// <param name="info"></param>
+        /// <param name="text">字符串</param>
+        /// <param name="symbol">标记字符</param>
+        /// <returns></returns>
+        public static string CutEndString(ref string text, string symbol)
+        {
+            if (string.IsNullOrEmpty(text)) return "";
+            int p = text.IndexOf(symbol);
+            if (p < 0) return "";
+            int ep = p + symbol.Length;//尾部字符串的起点
+            string end = (ep < text.Length) ? text.Substring(ep) : "";
+            text = text.Substring(0, p);
+            return end;
+        }
+
+        /// <summary>
+        /// 反向查找截切字符串，并返回截切的字符串
+        /// </summary>
+        /// <param name="text"></param>
         /// <param name="symbol"></param>
         /// <returns></returns>
-        public static string GetEndStringForLast(ref string info, string symbol)
+        public static string CutEndStringForLast(ref string text, string symbol)
         {
-            if (!string.IsNullOrEmpty(info))
-            {
-                int p = info.LastIndexOf(symbol);
-                if (p >= 0)
-                {
-                    int ep = p + symbol.Length;
-                    string end = (ep < info.Length ? info.Substring(ep) : "");
-                    info = info.Substring(0, p);
-                    return end;
-                }
-            }
-            return "";
+            if (string.IsNullOrEmpty(text)) return "";
+            int p = text.LastIndexOf(symbol);
+            if (p < 0) return "";
+            int ep = p + symbol.Length;
+            string end = (ep < text.Length ? text.Substring(ep) : "");
+            text = text.Substring(0, p);
+            return end;
         }
+
+        /// <summary>
+        /// 剪切字符串，返回剪切的字符串
+        /// </summary>
+        /// <param name="text">字符串</param>
+        /// <param name="len">长度</param>
+        /// <returns></returns>
+        public static string CutHomeString(ref string text, int len)
+        {
+            byte[] bs = Encoding.UTF32.GetBytes(text);//全部字
+            int home = len * 4;
+            if (home >= bs.Length) return "";
+            var val = Encoding.UTF32.GetString(bs, 0, home);
+            text = Encoding.UTF32.GetString(bs, home, bs.Length - home);
+            return val;
+        }
+
+        /// <summary>
+        /// 剪切字符串，返回剪切的字符串
+        /// </summary>
+        /// <param name="text">字符串</param>
+        /// <param name="symbol">标记字符</param>
+        /// <returns></returns>
+        public static string CutHomeString(ref string text, string symbol)
+        {
+            if (string.IsNullOrEmpty(text)) return "";
+            int p = text.IndexOf(symbol);
+            if (p < 0) return "";
+            string home = text.Substring(0, p);
+            int ep = p + symbol.Length;
+            text = ep < text.Length ? text.Substring(ep) : "";
+            return home;
+        }
+
 
 
     }
