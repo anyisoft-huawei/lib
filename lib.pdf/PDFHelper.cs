@@ -5,372 +5,448 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Xml.Linq;
+using lib.file;
 
 namespace lib.pdf
 {
-    public class UsePDF
+    /// <summary>
+    /// pdf帮助类
+    /// </summary>
+    public class PDFHelper : IDisposable
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="pdfFileName">PDF文件名称</param>
-        public UsePDF(string pdfFileName)
-        {
-            FileName = pdfFileName;
-        }
-        #region PDF
 
-        private pdfTrailer Trailer;
+        /// <summary>
+        /// 创建一个新的pdf对象
+        /// </summary>
+        public PDFHelper(){}
+
+        /// <summary>
+        /// 使用指定文件地址打开一个pdf
+        /// </summary>
+        /// <param name="file">pdf文件名</param>
+        public PDFHelper(string file)
+        {
+            Read(file);
+        }
+
+        /// <summary>
+        /// 释放PDF
+        /// </summary>
+        public void Dispose()
+        {
+            _pdf?.Close();
+        }
+
+        #region 字段 属性
 
         /// <summary>
         /// 文件名称
         /// </summary>
-        public string FileName { get; private set; }
-        private pdfStream pdfFile;
-
-        public pdfHeader Header;
-        public pdfXref Xref;
-
-        public void Read()
-        {
-            try
-            {
-                Open();
-                if (pdfFile.IndexOf(KeyDict.pdf) != 0) throw new Exception("未能识别的格式！");
-
-                long i = pdfFile.LastIndexOf(KeyDict.trailer);
-                if (i >= 0)
-                {
-                    Trailer = new pdfTrailer(pdfFile.ReadString(i, pdfFile.Length - i));
-                    long j =i- Trailer.StartXref;
-                    Xref = new pdfXref(pdfFile.ReadString(Trailer.StartXref, j));
-
-
-                }
-            }
-            catch (Exception)
-            {
-                Close();
-                throw;
-            }
-           
-
-        }
-
-
-
-
-
-
-        /*******************************************************
-         * 
-         * 主体部分
-         * 
-         * *****************************************************/
-
-
-            public static string getKeyValue(string str,string cr,out string value)
-        {
-            int i = str.IndexOf(cr);
-            if (i > 0 )
-            {
-                value = str.Substring(i, str.Length - i);
-                return str.Substring(0, i);
-            }
-            value = "";
-            return str;
-        }
-
-
-
-
-
+        public string _Name;
+        /// <summary>
+        /// 文件名称
+        /// </summary>
+        public string Name { get { return _Name; } }
 
         /// <summary>
-        /// 打开文件
+        /// 版本
         /// </summary>
-        private void Open()
-        {
-            try
-            {
-                pdfFile = new pdfStream(FileName);
-                pdfFile.Position = 0;
-            }
-            catch (Exception)
-            {
-                pdfFile.Dispose();
-                throw;
-            }
-        }
+        public string _Version = "%PDF-1.5";
+        /// <summary>
+        /// 版本
+        /// </summary>
+        public string Version { get { return _Version; } }
+
+        public byte[] End_Falg;
 
         /// <summary>
-        /// 打开文件
+        /// PDF文件流
         /// </summary>
-        private void Close()
-        {
-            try
-            {
-                if (pdfFile != null)
-                {
-                    pdfFile.Close();
-                    pdfFile.Dispose();
-                }
-            }
-            catch (Exception)
-            {
-                pdfFile.Dispose();
-                throw;
-            }
-        }
+        private FileStream _pdf = null;
+        /// <summary>
+        /// 对象引用表
+        /// </summary>
+        private List<PDFXref> _Xrefs = new List<PDFXref>();
+        /// <summary>
+        /// 对象字典
+        /// </summary>
+        private Dictionary<int, PDFObjcet> _objs = new Dictionary<int, PDFObjcet>();
 
 
 
+        private PDFCatalog _Catalog = new PDFCatalog();
+        /// <summary>
+        /// 目录结构
+        /// </summary>
+        public PDFCatalog Catalog { get { return _Catalog; } }
 
+        private PDFPageTree _PageTree = new PDFPageTree();
+        /// <summary>
+        /// 页面树
+        /// </summary>
+        public PDFPageTree PageTree { get { return _PageTree; } }
 
-        public struct KeyDict
-        {
-            public const string pdf = "%PDF-";
-            public const string obj = "obj\r\n";
-            public const string endobj = "endobj\r\n";
-            public const string trailer = "trailer";
-        }
-        public class pdfStream : FileStream
-        {
+        private PDFFontCollection _Fonts = new PDFFontCollection();
+        /// <summary>
+        /// 字体集合
+        /// </summary>
+        public PDFFontCollection Fonts { get { return _Fonts; } }
+        #endregion
 
-            public pdfStream(string FileName) : base(FileName, FileMode.OpenOrCreate, FileAccess.ReadWrite) { }
-
-
-            /// <summary>
-            /// 写入字符串，并返回字符串位长度
-            /// </summary>
-            /// <param name="str"></param>
-            /// <returns></returns>
-            public int WriteString(string str)
-            {
-                try
-                {
-                    Position = Length;
-                    byte[] buffer = Encoding.UTF8.GetBytes(str);
-                    Write(buffer, 0, buffer.Length);
-                    return buffer.Length;
-                }
-                catch (Exception)
-                {
-                    throw;
-                }
-            }
-
-
-            public string ReadString(long star,long strLength)
-            {
-                try
-                {
-                    byte[] buffer = new byte[strLength];
-                    Position = star;
-                    if (Read(buffer, 0, buffer.Length) > 0)
-                    {
-                        return Encoding.UTF8.GetString(buffer);
-                    }
-                    throw new Exception("读取文件出错！");
-                }
-                catch (Exception)
-                {
-                    throw;
-                }
-            }
-
-
-            /// <summary>
-            /// 从后往前在流中查找
-            /// </summary>
-            /// <param name="str"></param>
-            /// <returns></returns>
-            public long LastIndexOf(string str, out int strLast)
-            {
-                if (str == null) throw new Exception("查找的字符串为 null\r\n在 pdfStream.LastIndexOf");
-                byte[] buffer = Encoding.UTF8.GetBytes(str);
-                strLast = buffer.Length - 1;
-                int i = strLast;
-                long index = Length;
-                while (index > 0)
-                {
-                    Position = index;
-                    if (ReadByte() == buffer[i])
-                    {
-                        if (i <= 0) { return index; }
-                        i--;
-                    }else{ i = strLast; }
-                    index--;
-                }
-                return -1;
-            }
-
-            /// <summary>
-            /// 从后往前在流中查找
-            /// </summary>
-            /// <param name="str"></param>
-            /// <returns></returns>
-            public long LastIndexOf(string str)
-            {
-                if (str == null) throw new Exception("查找的字符串为 null\r\n在 pdfStream.LastIndexOf");
-                byte[] buffer = Encoding.UTF8.GetBytes(str);
-                int strLast = buffer.Length - 1;
-                int i = strLast;
-                long index = Length;
-                while (index > 0)
-                {
-                    Position = index;
-                    if (ReadByte() == buffer[i])
-                    {
-                        if (i <= 0) { return index; }
-                        i--;
-                    }
-                    else { i = strLast; }
-                    index--;
-                }
-                return -1;
-            }
-
-            /// <summary>
-            /// 在流中查找
-            /// </summary>
-            /// <param name="str"></param>
-            /// <returns></returns>
-            public long IndexOf(string str,out int strLast)
-            {
-                if (str == null) throw new Exception("查找的字符串为 null\r\n在 pdfStream.IndexOf");
-                Position = 0;
-                byte[] buffer = Encoding.UTF8.GetBytes(str);
-                strLast = buffer.Length - 1;
-                int i = 0;
-                while (Position < Length)
-                {
-                    if (ReadByte() == buffer[i])
-                    {
-                        if (i >= strLast) { return Position - strLast-1; }
-                        i++;
-                    }
-                    else { i = 0; }
-                }
-                return -1;
-            }
-            /// <summary>
-            /// 在流中查找
-            /// </summary>
-            /// <param name="str"></param>
-            /// <returns></returns>
-            public long IndexOf(string str)
-            {
-                if (str == null) throw new Exception("查找的字符串为 null\r\n在 pdfStream.IndexOf");
-                Position = 0;
-                byte[] buffer = Encoding.UTF8.GetBytes(str);
-                int strLast = buffer.Length - 1;
-                int i = 0;
-                while (Position < Length)
-                {
-                    if (ReadByte() == buffer[i])
-                    {
-                        if (i >= strLast) { return Position - strLast-1; }
-                        i++;
-                    }
-                    else { i = 0; }
-                }
-                return -1;
-            }
-
-
-
-        }
-
-
-        public class pdfHeader
-        {
-            public string Version="1.7";
-
-            public byte[] getHeader()
-            {
-                string str = string.Format("%PDF-{0}\n%\u00b5\u00b5\u00b5\u00b5\n", Version);
-                return Encoding.UTF8.GetBytes(str); ;
-            }
-        }
+        #region 常量
 
         /// <summary>
-        /// 对象位置表
+        /// 文件编码
         /// </summary>
-        public class pdfXref
+        Encoding _cn = Encoding.UTF8;
+        /// <summary>
+        /// 回车符
+        /// </summary>
+        const byte _r = 13;
+        /// <summary>
+        /// 换行符
+        /// </summary>
+        const byte _n = 10;
+        #endregion
+
+        #region 函数
+
+        public static PDFHelper ReadFile(string file)
         {
-            int xrefStar;
-            int xrefCount;
-            List<string> XrefArray;
-            public pdfXref()
+            var pdf = new PDFHelper();
+            pdf.Read(file);
+            return pdf;
+        }
+        /// <summary>
+        /// 读取pdf文件
+        /// </summary>
+        /// <param name="file">文件名</param>
+        public void Read(string file)
+        {
+            _Xrefs.Clear();
+            _objs.Clear();
+            if (!File.Exists(file)) throw new Exception("文件不存在！");
+            _Name = file;
+            _pdf = new FileStream(file, FileMode.Open, FileAccess.Read);
+            //文件头
+            var p = _pdf.IndexOf(13);
+            if (p < 0) return;//空内容
+            var vert = _pdf.ReadString(0, p, _cn);
+            if ("%PDF-" != vert.Substring(0, 5)) throw new Exception("未能识别的格式！");//是否PDF文件  
+            _Version = vert; //设置版本号
+            //文件结构
+            GetXrefInfo();
+            var v = _objs.Values.ToList();
+            //读取引用表
+            foreach (var item in _Xrefs)
             {
+                var xref = item;
 
             }
-            public pdfXref(string xref)
-            {
-                string[] xf= xref.Split(Environment.NewLine.ToCharArray());
-                string[] xc= xf[1].Split(' ');
-                xrefStar = int.Parse(xc[0]);
-                xrefCount = int.Parse(xc[1]);
-                XrefArray = new List<string>();
-                for (int i= 0;i< xrefCount; i++)
-                {
-                    XrefArray.Add(xf[i + 2]);
-                }
-            }
-
-
-
 
         }
 
         /// <summary>
-        /// 文件尾
+        /// 获取文档结构信息
         /// </summary>
-        public class pdfTrailer
+        /// <returns></returns>
+        private void GetXrefInfo()
         {
-            public Dictionary<string, string> Dict;
-            public long StartXref;
-
-            public pdfTrailer()
+            int size = 4096;//缓存大小
+            var buffer = new byte[size];//缓存块
+            List<byte> tmp = new List<byte>();//暂存块
+            PDFObjcet a_obj = null;//当前对象
+            PDFXref a_xref = null;//当前引用表
+            //正则参数
+            var reg_obj = new Regex(@"^(\d+) (\d+) obj$", RegexOptions.Compiled);
+            var reg_type = new Regex(@"<< /Type /[\w]+", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+            //开始工作
+            int objfalg = -1;//对象标志
+            _pdf.Position = 0;
+            long kuai = 0;
+            while (true)
             {
-            }
-            public pdfTrailer(string trailer)
-            {
-                Dict = new Dictionary<string, string>();
-                int i=trailer.IndexOf("startxref");
-                if (i > 0)
+                kuai = _pdf.Position;//记住当前位置
+                int home = -1;//开始位置
+                int end = 0;//结束位置
+                int count = _pdf.Read(buffer, 0, size);
+                if(count > 0)
                 {
-                    string strHome = trailer.Substring(0, i);
-                    string strEnd = trailer.Substring(i, trailer.Length - i);
-                    strEnd = strEnd.Replace("startxref","");
-                    strEnd = strEnd.Replace("%%EOF", "");
-                    strEnd = strEnd.Replace("\n", "");
-                    StartXref = long.Parse(strEnd.Trim());
-
-                    strHome = strHome.Replace("trailer", "");
-                    strHome = strHome.Replace("<<", "");
-                    strHome = strHome.Replace(">>", "");
+                    //检查块内容
+                    var lbs = buffer.ToList();
+                    for (int i = 0; i < count; i++)
+                    {
+                        if (buffer[i] == _r || buffer[i] == _n)
+                        {
+                            //转移标记
+                            home = end;
+                            end = i;
+                            //判断是否要读取标记
+                            if (home >= 0)
+                            {
+                                home++;
+                                int v_count = end - home;
+                                //是否需要进行处理
+                                if (v_count + tmp.Count < 50)//-----------------------
+                                {
+                                    if(home < end) tmp.AddRange(lbs.GetRange(home, end - home));//拼接
+                                    var val = _cn.GetString(tmp.ToArray()).Trim();
+                                    //检查对象头
+                                    var match = reg_obj.Match(val);
+                                    if (match.Success) 
+                                    {
+                                        objfalg = 1;
+                                        a_obj = new PDFObjcet(int.Parse(match.Groups[1].Value));
+                                        a_obj.eg = int.Parse(match.Groups[2].Value);
+                                        a_obj.home = kuai + home;
+                                        _objs.Add(a_obj.id, a_obj);
+                                    }
+                                    //判断标记类型
+                                    switch (val)
+                                    {
+                                        case "endobj":
+                                            objfalg = -1;
+                                            a_obj.end = kuai + home;
+                                            break;
+                                        case "xref":
+                                        case "startxref":
+                                            if (objfalg != 3) { a_xref = new PDFXref(); _Xrefs.Add(a_xref); }
+                                            objfalg = 2;
+                                            a_xref.home = kuai + home;
+                                            break;
+                                        case "%%EOF":
+                                            objfalg = -1;
+                                            a_xref.end = kuai + home;
+                                            break;
+                                        case "trailer":
+                                            objfalg = 3;
+                                            a_xref = new PDFXref();
+                                            _Xrefs.Add(a_xref);
+                                            a_xref.home = kuai + home;
+                                            break;
+                                        default:
+                                            //对类型进行处理
+                                            switch (objfalg)
+                                            {
+                                                case 1:
+                                                    //objfalg = 21;
+                                                    var t = val;
+                                                    break;
+                                                case 3:
+                                                    break;
+                                                default:
+                                                    break;
+                                            }break;
+                                    }
+                                }
+                                tmp.Clear();
+                            }
+                        }
+                    }
+                    end++;
+                    if(end < lbs.Count) tmp.AddRange(lbs.GetRange(end, lbs.Count - end));
+                    if (count < size) break;
+                }
+                else
+                {
+                    break;
                 }
             }
-
-            public byte[] getBytes(out int size)
+            if(tmp.Count > 0)
             {
-                //StringBuilder sb = new StringBuilder();
-                //Dict.Select(x => sb.AppendFormat("{0} {1}\n", x.Key, x.Value));
-                List<string> ls = Dict.Select(x => string.Format("{0} {1}\n", x.Key, x.Value)).ToList();
-                string str = string.Format("trailer\n<<\n{0}>>\nstartxref\n{1}\n%%EOF\n", ls.ToString(), StartXref);
-                byte[] buffer = Encoding.UTF8.GetBytes(str);
-                size = buffer.Length;
-                return buffer;
+                End_Falg = tmp.ToArray();
+                tmp.Clear();
             }
+        }
 
 
-        }//end class Trailer
+
+        public void Save(string file)
+        {
+            if (!File.Exists(file)) File.Create(file).Close();
+        }
 
         #endregion
 
+        #region 子类
+
+        /// <summary>
+        /// PDF引用表
+        /// </summary>
+        public class PDFXref
+        {
+            public long trailer;
+            /// <summary>
+            /// 对象的起始标记地址
+            /// </summary>
+            public long home;
+            /// <summary>
+            /// 对象的结束标记地址
+            /// </summary>
+            public long end;
+            public List<XrefGroup> Groups = new List<XrefGroup>();
+            /// <summary>
+            /// 头标记
+            /// </summary>
+            public const string _start = "startxref";
+            /// <summary>
+            /// 尾标记
+            /// </summary>
+            public const string _stop = "%%EOF";
+            public void Load(string data)
+            {
+
+            }
+
+            /// <summary>
+            /// 引用组
+            /// </summary>
+            public class XrefGroup
+            {
+                public int homeid;
+                public int count;
+                public List<Xref> Xrefs = new List<Xref>();
+            }
+
+            /// <summary>
+            /// 引用信息
+            /// </summary>
+            public struct Xref
+            {
+                /// <summary>
+                /// 地址
+                /// </summary>
+                public int address;
+                /// <summary>
+                /// 编号
+                /// </summary>
+                public int id;
+                /// <summary>
+                /// 标志
+                /// </summary>
+                public string flag;
+            }
+        }
+
+        /// <summary>
+        /// 对象类型
+        /// </summary>
+        public enum PDFObjcetType
+        {
+            /// <summary>
+            /// 字体
+            /// </summary>
+            Font
+        }
+
+        /// <summary>
+        /// PDF对象
+        /// </summary>
+        public class PDFObjcet
+        {
+
+            /// <summary>
+            /// 对象的起始标记地址
+            /// </summary>
+            public long home = -1;
+            /// <summary>
+            /// 对象的结束标记地址
+            /// </summary>
+            public long end = -1;
+
+            /// <summary>
+            /// 对象id
+            /// </summary>
+            public int id;
+            /// <summary>
+            /// 标记
+            /// </summary>
+            public int eg;
+            /// <summary>
+            /// 对象类型
+            /// </summary>
+            public string type;
+            /// <summary>
+            /// 对象头
+            /// </summary>
+            public string Header { get { return string.Format("{0} {1} obj", id, eg); } }
+
+            public PDFObjcet() {  }
+            public PDFObjcet(int num) { id = num; }
+
+            /// <summary>
+            /// 定义虚函数，由继承类实现
+            /// </summary>
+            /// <returns></returns>
+            public virtual byte[] ToBytes()
+            {
+                return null;
+            }
+
+            public override string ToString()
+            {
+                return string.Format("{0} {1} obj {2}", id, eg, type);
+            }
+        }
+
+        /// <summary>
+        /// PDF目录结构
+        /// </summary>
+        public class PDFCatalog : PDFObjcet
+        {
+
+        }
+
+        /// <summary>
+        /// PDF页面树
+        /// </summary>
+        public class PDFPageTree : PDFObjcet
+        {
+
+        }
+
+        /// <summary>
+        /// PDF字体
+        /// </summary>
+        public class PDFFontCollection
+        { 
+           
+        }
+
+        /// <summary>
+        /// PDF字体
+        /// </summary>
+        public class PDFFont : PDFObjcet
+        {
+            /// <summary>
+            /// 字体名称
+            /// </summary>
+            public string Name;
+            /// <summary>
+            /// 基字体
+            /// </summary>
+            public string BaseFont;
+
+            public string SubType;
+            public string _Encoding;
+
+            /// <summary>
+            /// 对象值
+            /// </summary>
+            public string Value
+            {
+                get { return string.Format("{0} 0 obj<</Type/Font/Name /{1}/BaseFont/{2}/Subtype/Type1/Encoding /WinAnsiEncoding>>/nendobj/n", id, Name, BaseFont); }
+            }
+            public override string ToString()
+            {
+                var name = Enum.GetName(typeof(PDFObjcetType), PDFObjcetType.Font);
+                return base.ToString();
+            }
+        }
+
+        #endregion
 
 
 
@@ -378,7 +454,7 @@ namespace lib.pdf
         {
             try
             {
-
+                
 
                 //目录
                 CatalogDict catalogDict = new CatalogDict();
@@ -574,7 +650,8 @@ namespace lib.pdf
             }
         }
 
-  
+
+
 
         #region PDF对象
 
@@ -969,10 +1046,7 @@ namespace lib.pdf
         public class CatalogDict : PdfObject
         {
             private string catalog;
-            public CatalogDict()
-            {
-
-            }
+         
 
             /// <summary>
             /// 获取目录字典
