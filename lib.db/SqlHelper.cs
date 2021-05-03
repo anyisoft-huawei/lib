@@ -184,161 +184,137 @@ namespace lib.db
             }
         }
 
+        /// <summary>
+        /// Update 函数的操作类型
+        /// </summary>
+        public enum UpdateType
+        {
+            /// <summary>
+            /// 将数据库的数据下载到数据表中
+            /// </summary>
+            Select,
+            /// <summary>
+            /// 将数据表中的数据更新或插入到数据库
+            /// </summary>
+            InsertOrUpdate,
+            /// <summary>
+            /// 将数据表中的数据从数据库删除
+            /// </summary>
+            Delete
+        }
 
         /// <summary>
-        /// 从数据库读取数据
+        /// 更新数据到数据库, 默认为获取, 返回更新后的表
         /// </summary>
         /// <param name="_conn">已打开的数据库连接</param>
-        /// <param name="sql">sql命令文本</param>
+        /// <param name="dt">数据集</param>
+        /// <param name="sql">sql数据筛选文本，筛选范围越小执行速度越快</param>
+        /// <param name="key">数据主键</param>
         /// <param name="_params">sql参数集</param>
         /// <param name="_type">sql命令类型</param>
-        /// <param name="trans">事务</param>
+        /// <param name="up">操作类型</param>
         /// <returns></returns>
-        public static DataSet ReadToDataSet(this SqlConnection _conn, string sql, SqlParameter[] _params = null, CommandType _type = CommandType.Text, SqlTransaction trans = null)
+        public static DataTable Update(this SqlConnection _conn, DataTable dt, string key, string sql, SqlParameter[] _params = null, CommandType _type = CommandType.Text, UpdateType up = UpdateType.Select)
         {
             using (SqlCommand cmd = _conn.CreateCommand())
             {
                 cmd.CommandText = sql;
                 cmd.CommandType = _type;
-                cmd.Transaction = trans;
                 if (null != _params) cmd.Parameters.AddRange(_params);
                 using (SqlDataAdapter da = new SqlDataAdapter(cmd))
                 {
-                    DataSet ds = new DataSet();
-                    da.Fill(ds);
-                    return ds;
+                    var db = new DataTable();
+                    da.Fill(db);//下载数据
+                    switch (up)
+                    {
+                        case UpdateType.InsertOrUpdate:
+                            db.PrimaryKey = new DataColumn[] { db.Columns[key] };//设置主键                         
+                            var div = new Dictionary<int, int>();
+                            for (int i = 0; i < dt.Columns.Count; i++)//获取列映射
+                            {
+                                int p = db.Columns.IndexOf(dt.Columns[i].ColumnName);
+                                if (p >= 0) div.Add(i, p);
+                            }                           
+                            for (int i = dt.Rows.Count - 1; i >= 0; i--)//要修改的数据
+                            {
+                                var dr = db.Rows.Find(dt.Rows[i][key]);//以主键查找数据行
+                                if(null != dr)//对行进行修改
+                                {
+                                    foreach (var k in div.Keys) dr[div[k]] = dt.Rows[i][k];//修改行
+                                    dt.Rows.RemoveAt(i);//移除已修改行
+                                }
+                            }
+                            foreach (DataRow item in dt.Rows)//要增加的数据
+                            {
+                                var dr = db.NewRow();
+                                foreach (var k in div.Keys) dr[div[k]] = item[k];//修改行
+                                db.Rows.Add(dr);
+                            }
+                            var cb = new SqlCommandBuilder(da);
+                            da.UpdateCommand = cb.GetUpdateCommand();
+                            da.InsertCommand = cb.GetInsertCommand();
+                            da.Update(dt);//提交修改
+                            break;
+                        case UpdateType.Delete:
+                            db.PrimaryKey = new DataColumn[] { db.Columns[key] };//设置主键
+                            for (int i = 0; i < dt.Rows.Count; i++) db.Rows.Find(dt.Rows[i][key])?.Delete();//标记删除
+                            da.DeleteCommand = new SqlCommandBuilder(da).GetDeleteCommand();
+                            da.Update(dt);//提交修改
+                            break;
+                        default:
+                            break;
+                    }
+                    return db;
                 }
             }
         }
 
         /// <summary>
-        /// 从数据库读取数据
-        /// </summary>
-        /// <param name="_conn">数据库连接字符串</param>
-        /// <param name="sql">sql命令文本</param>
-        /// <param name="_params">sql参数集</param>
-        /// <param name="_type">sql命令类型</param>
-        /// <param name="trans">事务</param>
-        /// <returns></returns>
-        public static DataSet ReadToDataSet(string _conn, string sql, SqlParameter[] _params = null, CommandType _type = CommandType.Text, SqlTransaction trans = null)
-        {
-            using (SqlConnection conn = new SqlConnection(_conn))
-            {
-                conn.Open();
-                return conn.ReadToDataSet(sql, _params, _type);
-            }
-        }
-
-
-        /// <summary>
-        /// 更新数据到数据库
+        /// 更新数据到数据库, 默认为获取, 返回更新后的表
         /// </summary>
         /// <param name="_conn">已打开的数据库连接</param>
-        /// <param name="ds">要更新的数据</param>
-        /// <param name="sql">sql命令文本</param>
+        /// <param name="dt">数据集</param>
+        /// <param name="sql">sql数据筛选文本，筛选范围越小执行速度越快</param>
+        /// <param name="key">数据主键</param>
         /// <param name="_params">sql参数集</param>
         /// <param name="_type">sql命令类型</param>
-        /// <param name="trans">事务</param>
+        /// <param name="up">操作类型</param>
         /// <returns></returns>
-        public static void UpdateFromDataSet(this SqlConnection _conn, DataSet ds, string sql, SqlParameter[] _params = null, CommandType _type = CommandType.Text, SqlTransaction trans = null)
-        {
-            using (SqlCommand cmd = _conn.CreateCommand())
-            {
-                cmd.CommandText = sql;
-                cmd.CommandType = _type;
-                cmd.Transaction = trans;
-                if (null != _params) cmd.Parameters.AddRange(_params);
-                using (SqlDataAdapter da = new SqlDataAdapter(cmd))
-                {
-                    da.Update(ds);
-                }
-            }
-        }
-
-        /// <summary>
-        /// 更新数据到数据库
-        /// </summary>
-        /// <param name="_conn">数据库连接字符串</param>
-        /// <param name="ds">要更新的数据</param>
-        /// <param name="sql">sql命令文本</param>
-        /// <param name="_params">sql参数集</param>
-        /// <param name="_type">sql命令类型</param>
-        /// <returns></returns>
-        public static void UpdateFromDataSet(string _conn, DataSet ds, string sql, SqlParameter[] _params = null, CommandType _type = CommandType.Text)
+        public static DataTable Update(string _conn, DataTable dt, string key, string sql, SqlParameter[] _params = null, CommandType _type = CommandType.Text, UpdateType up = UpdateType.Select)
         {
             using (SqlConnection conn = new SqlConnection(_conn))
             {
                 conn.Open();
-                conn.UpdateFromDataSet(ds, sql, _params, _type);
-            }
-        }
-
-        /// <summary>
-        /// 事务方式更新数据到数据库
-        /// </summary>
-        /// <param name="_conn">数据库连接字符串</param>
-        /// <param name="ds">要更新的数据</param>
-        /// <param name="sql">sql命令文本</param>
-        /// <param name="_params">sql参数集</param>
-        /// <param name="_type">sql命令类型</param>
-        /// <returns></returns>
-        public static void TransUpdateFromDataSet(string _conn, DataSet ds, string sql, SqlParameter[] _params = null, CommandType _type = CommandType.Text)
-        {
-            using (SqlConnection conn = new SqlConnection(_conn))
-            {
-                conn.Open();
-                using (var trans = conn.BeginTransaction())
-                {
-                    try
-                    {
-                        conn.UpdateFromDataSet(ds, sql, _params, _type, trans);
-                        trans.Commit();
-                    }
-                    catch (Exception)
-                    {
-                        trans.Rollback();
-                        throw;
-                    }
-                }
+                return conn.Update(dt, key, sql, _params, _type, up);
             }
         }
 
 
         /// <summary>
-        /// 事务方式批量插入数据,映射列包含数据表中的全部列
+        /// 批量插入数据,映射列包含数据表中的全部列
         /// </summary>
         /// <param name="_conn">已打开的数据库连接</param>
         /// <param name="dt">要插入的数据</param>
         /// <param name="tablename">数据库表名</param>
         public static void InsertTable(this SqlConnection _conn, DataTable dt, string tablename)
         {
-            using (var trans = _conn.BeginTransaction())
             using (var sqlBC = new SqlBulkCopy(_conn))
             {
-                try
+                sqlBC.BatchSize = dt.Rows.Count;
+                //sqlBC.BulkCopyTimeout = 100;
+                //sqlBC.NotifyAfter = dt.Rows.Count;
+                //sqlBC.SqlRowsCopied += rce;
+                sqlBC.DestinationTableName = tablename;
+                for (int i = 0; i < dt.Columns.Count; i++)
                 {
-                    sqlBC.BatchSize = dt.Rows.Count;
-                    //sqlBC.BulkCopyTimeout = 100;
-                    //sqlBC.NotifyAfter = dt.Rows.Count;
-                    //sqlBC.SqlRowsCopied += rce;
-                    sqlBC.DestinationTableName = tablename;
-                    for (int i = 0; i < dt.Columns.Count; i++)
-                    {
-                        sqlBC.ColumnMappings.Add(dt.Columns[i].ColumnName, dt.Columns[i].ColumnName);
-                    }
-                    sqlBC.WriteToServer(dt);
-                    trans.Commit();
+                    sqlBC.ColumnMappings.Add(dt.Columns[i].ColumnName, dt.Columns[i].ColumnName);
                 }
-                catch (Exception)
-                {
-                    trans.Rollback();
-                    throw;
-                }
+                sqlBC.WriteToServer(dt);
             }
         }
 
         /// <summary>
-        /// 事务方式批量插入数据,映射列包含数据表中的全部列
+        /// 批量插入数据,映射列包含数据表中的全部列
         /// </summary>
         /// <param name="_conn">数据库连接字符串</param>
         /// <param name="dt">要插入的数据</param>
@@ -353,7 +329,7 @@ namespace lib.db
         }
 
         /// <summary>
-        /// 事务方式批量插入数据,用指定列名映射列
+        /// 批量插入数据,用指定列名映射列
         /// </summary>
         /// <param name="_conn">已打开的数据库连接</param>
         /// <param name="dt">要插入的数据</param>
@@ -361,33 +337,23 @@ namespace lib.db
         /// <param name="nvs">映射关系：表列-数据库列</param>
         public static void InsertTable(this SqlConnection _conn, DataTable dt, string tablename, KeyValuePair<string, string>[] nvs)
         {
-            using (var trans = _conn.BeginTransaction())
             using (var sqlBC = new SqlBulkCopy(_conn))
             {
-                try
+                sqlBC.BatchSize = dt.Rows.Count;
+                //sqlBC.BulkCopyTimeout = 100;
+                //sqlBC.NotifyAfter = dt.Rows.Count;
+                //sqlBC.SqlRowsCopied += rce;
+                sqlBC.DestinationTableName = tablename;
+                foreach (KeyValuePair<string, string> item in nvs)
                 {
-                    sqlBC.BatchSize = dt.Rows.Count;
-                    //sqlBC.BulkCopyTimeout = 100;
-                    //sqlBC.NotifyAfter = dt.Rows.Count;
-                    //sqlBC.SqlRowsCopied += rce;
-                    sqlBC.DestinationTableName = tablename;
-                    foreach (KeyValuePair<string, string> item in nvs)
-                    {
-                        sqlBC.ColumnMappings.Add(item.Key, item.Value);
-                    }
-                    sqlBC.WriteToServer(dt);
-                    trans.Commit();
+                    sqlBC.ColumnMappings.Add(item.Key, item.Value);
                 }
-                catch (Exception)
-                {
-                    trans.Rollback();
-                    throw;
-                }
+                sqlBC.WriteToServer(dt);
             }
         }
 
         /// <summary>
-        /// 事务方式批量插入数据,用指定列名映射列
+        /// 批量插入数据,用指定列名映射列
         /// </summary>
         /// <param name="_conn">数据库连接字符串</param>
         /// <param name="dt">要插入的数据</param>

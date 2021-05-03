@@ -77,7 +77,10 @@ namespace lib.file
         }
 
       
-
+        /// <summary>
+        /// 获取mac地址
+        /// </summary>
+        /// <returns></returns>
         public static string GetMacAddressByNetworkInformation()
         {
             string key = "SYSTEM\\CurrentControlSet\\Control\\Network\\{4D36E972-E325-11CE-BFC1-08002BE10318}\\";

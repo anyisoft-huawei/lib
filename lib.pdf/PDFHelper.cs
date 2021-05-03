@@ -26,8 +26,10 @@ namespace lib.pdf
         /// 使用指定文件地址打开一个pdf
         /// </summary>
         /// <param name="file">pdf文件名</param>
-        public PDFHelper(string file)
+        /// <param name="_edit">编辑模式打开</param>
+        public PDFHelper(string file, bool _edit = false)
         {
+            _Edit = false;
             Read(file);
         }
 
@@ -36,11 +38,14 @@ namespace lib.pdf
         /// </summary>
         public void Dispose()
         {
+            _objs.Clear();
+            _Xrefs.Clear();
             _pdf?.Close();
         }
 
         #region 字段 属性
 
+        private bool _Edit = false;
         /// <summary>
         /// 文件名称
         /// </summary>
@@ -143,10 +148,34 @@ namespace lib.pdf
             foreach (var item in _Xrefs)
             {
                 var xref = item;
-
+                var start = xref.home + PDFXref._start.Length + 1;
+                if(start < xref.end)
+                {
+                    var tmp = _pdf.ReadString(start, xref.end - start, _cn);
+                    xref.Load(tmp);
+                }
+            }
+            //获取目录
+            var catas = GetObject("/catalog");
+            //添加目录
+            if(catas.Count > 0)
+            {
+                var cata = catas[0];
+                if (cata.typeend < cata.end)
+                {
+                    var bs = _pdf.ReadBytes(cata.typeend, cata.end - cata.typeend);
+                    var text = _cn.GetString(bs);
+                }
             }
 
         }
+
+        public List<byte[]> GetLines(byte[] bs)
+        {
+            var list = new List<byte[]>();
+            return list;
+        }
+
 
         /// <summary>
         /// 获取文档结构信息
@@ -189,10 +218,17 @@ namespace lib.pdf
                                 home++;
                                 int v_count = end - home;
                                 //是否需要进行处理
-                                if (v_count + tmp.Count < 50)//-----------------------
+                                if (v_count + tmp.Count < 50 || objfalg == 1)//-----------------------
                                 {
                                     if(home < end) tmp.AddRange(lbs.GetRange(home, end - home));//拼接
                                     var val = _cn.GetString(tmp.ToArray()).Trim();
+                                    //存类型结束地址
+                                    if (objfalg == 1) 
+                                    { 
+                                        a_obj.typeend = kuai + i;
+                                        a_obj.PramasTree.SetValue(val);
+                                        objfalg = 21; 
+                                    }
                                     //检查对象头
                                     var match = reg_obj.Match(val);
                                     if (match.Success) 
@@ -228,17 +264,7 @@ namespace lib.pdf
                                             break;
                                         default:
                                             //对类型进行处理
-                                            switch (objfalg)
-                                            {
-                                                case 1:
-                                                    //objfalg = 21;
-                                                    var t = val;
-                                                    break;
-                                                case 3:
-                                                    break;
-                                                default:
-                                                    break;
-                                            }break;
+                                            break;
                                     }
                                 }
                                 tmp.Clear();
@@ -261,7 +287,23 @@ namespace lib.pdf
             }
         }
 
-
+        /// <summary>
+        /// 获取对象
+        /// </summary>
+        /// <param name="_type">类型</param>
+        /// <returns></returns>
+        private List<PDFObjcet> GetObject(string _type)
+        {
+            var list = new List<PDFObjcet>();
+            foreach (var item in _objs.Values)
+            {
+               if(item._Type.ToLower() == _type)
+                {
+                    list.Add(item);
+                }
+            }
+            return list;
+        }
 
         public void Save(string file)
         {
@@ -297,7 +339,7 @@ namespace lib.pdf
             public const string _stop = "%%EOF";
             public void Load(string data)
             {
-
+                int i = 1;
             }
 
             /// <summary>
@@ -355,6 +397,10 @@ namespace lib.pdf
             /// 对象的结束标记地址
             /// </summary>
             public long end = -1;
+            /// <summary>
+            /// 类型结束标记
+            /// </summary>
+            public long typeend = -1;
 
             /// <summary>
             /// 对象id
@@ -365,13 +411,17 @@ namespace lib.pdf
             /// </summary>
             public int eg;
             /// <summary>
-            /// 对象类型
+            /// 参数树
             /// </summary>
-            public string type;
+            public PDFPramas PramasTree = new PDFPramas();
             /// <summary>
             /// 对象头
             /// </summary>
             public string Header { get { return string.Format("{0} {1} obj", id, eg); } }
+            /// <summary>
+            /// 对象类型
+            /// </summary>
+            public string _Type { get { return PramasTree._Type; } }
 
             public PDFObjcet() {  }
             public PDFObjcet(int num) { id = num; }
@@ -387,9 +437,189 @@ namespace lib.pdf
 
             public override string ToString()
             {
-                return string.Format("{0} {1} obj {2}", id, eg, type);
+                return string.Format("{0} {1} obj {2}", id, eg, _Type);
             }
+
+            
         }
+
+        /// <summary>
+        /// PDF参数树
+        /// </summary>
+        public class PDFPramas
+        {
+            /// <summary>
+            /// 隐藏值
+            /// </summary>
+            private string _Value;
+            /// <summary>
+            /// 隐藏节点
+            /// </summary>
+            private List<PDFPramas> _Nodes = null;
+            /// <summary>
+            /// 隐藏对象类型
+            /// </summary>
+            private PDFPramas _type;
+
+            /// <summary>
+            /// 对象类型
+            /// </summary>
+            public string _Type { get { return null == _type ? "" : _type.Value; } }
+            /// <summary>
+            /// 键名
+            /// </summary>
+            public string Key;
+            /// <summary>
+            /// 键值
+            /// </summary>
+            public string Value { get { return _Value; } }
+            /// <summary>
+            /// 键节点
+            /// </summary>
+            public List<PDFPramas> Nodes { get { return _Nodes.ToList(); } }
+            /// <summary>
+            /// 备注
+            /// </summary>
+            public string _end;
+
+            /// <summary>
+            /// 添加新节点
+            /// </summary>
+            /// <param name="key">节点名称</param>
+            /// <returns></returns>
+            public PDFPramas AddNode(string key)
+            {
+                var pm = new PDFPramas();
+                pm.Key = key.Trim();
+                if ("/type" == pm.Key.ToLower()) _type = pm; 
+                _Nodes.Add(pm);
+                return pm;
+            }
+
+            /// <summary>
+            /// 设置值
+            /// </summary>
+            /// <param name="_v">值</param>
+            public void SetValue(string _v)
+            {
+                _Value = null;//初始化值
+                _Nodes = null;//初始化子节点
+                int falg = 0;
+                int start = -1;
+                PDFPramas pm = null;
+                bool key = false;
+                _v = _v.Trim();
+                if (_v.IndexOf("<<") == 0)
+                {
+                    _v = _v.Substring(2);
+                    _Nodes = new List<PDFPramas>();
+                    int p = _v.LastIndexOf(">>");
+                    if (p >= 0)
+                    {
+                        _end = _v.Substring(p);
+                        _end = _end.Length > 2 ? _end.Substring(2) : "";
+                        _v = _v.Substring(0, p);
+                    }
+                    for (int i = 0; i < _v.Length; i++)
+                    {
+                        switch (_v[i])
+                        {
+                            case '/'://名称
+                                if (0 == falg)
+                                {
+                                    if (key)
+                                    {
+                                        pm = AddNode(_v.Substring(start, i - start));
+                                    }
+                                    else 
+                                    {
+                                        if (null != pm) pm.SetValue(_v.Substring(start, i - start));
+                                    }
+                                    start = i;//标记起点
+                                    key = !key;
+                                }
+                                break;
+                            case ' ':
+                                if (0 == falg && key)
+                                {
+                                    pm = AddNode(_v.Substring(start, i - start));
+                                    key = false;
+                                    start = i;//标记起点
+                                }
+                                break;
+                            case '<':
+                            case '[':
+                                if (0 == falg && key)
+                                {
+                                    pm = AddNode(_v.Substring(start, i - start));
+                                    key = false;
+                                    start = i;//标记起点
+                                }
+                                falg++;
+                                if (_v[1] == '<') i++;
+                                break;
+                            case '>':
+                            case ']':
+                                falg--;
+                                if (_v[1] == '>') i++;
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                    if (start > 0) 
+                    {                   
+                        pm.SetValue(_v.Substring(start));
+                    }
+                }
+                else _Value = _v;
+            }
+
+            /// <summary>
+            /// 移除节点
+            /// </summary>
+            /// <param name="key">节点名称</param>
+            public void Remove(string key)
+            {
+                for (int i = 0; i < Nodes.Count; i++)
+                {
+                    if(key == Nodes[i].Key)
+                    {
+                        if (_type == Nodes[i]) _type = null;
+                        Nodes.RemoveAt(i);
+                    }
+                }
+            }
+
+            /// <summary>
+            /// 节点值获取
+            /// </summary>
+            /// <returns></returns>
+            private string GetNodesValue()
+            {
+                if (null == _Nodes) return "";
+                var sb = new StringBuilder();
+                sb.Append("<<");
+                foreach (var kv in _Nodes)
+                {
+                    sb.Append(kv.ToString());
+                }
+                sb.Append(">>");
+                return sb.ToString();
+            }
+
+            /// <summary>
+            /// 键内容
+            /// </summary>
+            /// <returns></returns>
+            public override string ToString()
+            {
+                return string.Format("{0}{1}{2}", Key, (null == _Nodes ? string.Format(" {0}", _Value) : GetNodesValue()), _end);
+            }
+
+        }
+
+
 
         /// <summary>
         /// PDF目录结构
@@ -437,7 +667,7 @@ namespace lib.pdf
             /// </summary>
             public string Value
             {
-                get { return string.Format("{0} 0 obj<</Type/Font/Name /{1}/BaseFont/{2}/Subtype/Type1/Encoding /WinAnsiEncoding>>/nendobj/n", id, Name, BaseFont); }
+                get { return string.Format("{0} 0 obj\n<</Type/Font/Name /{1}/BaseFont/{2}/Subtype/Type1/Encoding /WinAnsiEncoding>>\nendobj\n", id, Name, BaseFont); }
             }
             public override string ToString()
             {

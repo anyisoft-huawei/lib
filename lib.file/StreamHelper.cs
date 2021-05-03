@@ -7,7 +7,9 @@ using System.Threading.Tasks;
 
 namespace lib.file
 {
-
+    /// <summary>
+    /// 流帮助类
+    /// </summary>
     public static class StreamHelper
     {
 

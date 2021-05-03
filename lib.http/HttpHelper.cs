@@ -246,7 +246,7 @@ namespace lib.http
         public static string GetParam(this HttpContextBase _h, string key)
         {
             var val = _h.GetQueryString(key);
-            return "".Equals(val) ? _h.GetForm(key) : val;
+            return string.IsNullOrEmpty(val) ? _h.GetForm(key) : val;
         }
 
         #endregion

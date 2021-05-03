@@ -71,5 +71,33 @@ namespace atest
         }
 
 
+       static  string conn = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=D:\Code\test.mdf;Integrated Security=True;Connect Timeout=30";
+
+        public static void Inster(DataTable dt)
+        {
+            SqlHelper.InsertTable(conn, dt, "dbtest");
+        } 
+
+        public static void Del(DataTable dt, string key)
+        {
+            using (SqlConnection _conn = new SqlConnection(conn))
+            {
+                _conn.Open();
+                using (SqlCommand cmd = _conn.CreateCommand())
+                {
+                    cmd.CommandText = "select * from dbtest";
+                    using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+                    {
+                        var db = new DataTable();
+                        da.Fill(db);
+                        db.PrimaryKey = new DataColumn[] { db.Columns[key] }; 
+                        for (int i = 0; i < dt.Rows.Count; i++) db.Rows.Find(dt.Rows[i][key]).Delete();
+                        da.DeleteCommand = new SqlCommandBuilder(da).GetDeleteCommand();
+                        da.Update(db);
+                    }
+                }
+            }
+        }
+
     }
 }

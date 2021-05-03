@@ -8,6 +8,9 @@ using System.Net.Mail;
 
 namespace lib.http
 {
+    /// <summary>
+    /// Email 帮助类
+    /// </summary>
     public class EMail : IDisposable
     {
         #region 发送电子邮件

@@ -63,7 +63,8 @@ namespace lib.file
         /// <summary>
         /// 使用当前文件名+日期构建一个新文件名
         /// </summary>
-        /// <param name="file"></param>
+        /// <param name="file">文件名称</param>
+        /// <param name="format">日期格式</param>
         /// <returns></returns>
         public static string GetNewName(string file, string format = "yyyymmddhhMMss")
         {

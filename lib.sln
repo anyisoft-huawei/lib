@@ -27,7 +27,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "lib.websocket", "lib.WebSoc
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "lib.cache", "lib.cache\lib.cache.csproj", "{70287AB7-C269-45B8-8FA1-771B1E3A53F4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "atest", "atest\atest.csproj", "{A69A6C86-94DA-4837-8D75-BEBA82E7FAEF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "adome", "atest\adome.csproj", "{A69A6C86-94DA-4837-8D75-BEBA82E7FAEF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "lib.mvvm", "lib.mvvm\lib.mvvm.csproj", "{82F76F15-A714-400A-A5C3-CE67BEF4EA31}"
 EndProject
@@ -37,7 +37,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "lib.db", "lib.db\lib.db.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "lib.office", "lib.office\lib.office.csproj", "{C31F0486-1E29-4378-B2A8-A36F0D4B3F03}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "atestform", "atestform\atestform.csproj", "{23240046-FFD8-41BD-844B-FF23AE325474}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "adomeform", "atestform\adomeform.csproj", "{23240046-FFD8-41BD-844B-FF23AE325474}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "zfapi", "zfapi\zfapi.csproj", "{537D0BE5-E165-4AC4-A761-E64399A7E074}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -117,6 +119,10 @@ Global
 		{23240046-FFD8-41BD-844B-FF23AE325474}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{23240046-FFD8-41BD-844B-FF23AE325474}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{23240046-FFD8-41BD-844B-FF23AE325474}.Release|Any CPU.Build.0 = Release|Any CPU
+		{537D0BE5-E165-4AC4-A761-E64399A7E074}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{537D0BE5-E165-4AC4-A761-E64399A7E074}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{537D0BE5-E165-4AC4-A761-E64399A7E074}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{537D0BE5-E165-4AC4-A761-E64399A7E074}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
