@@ -78,26 +78,17 @@ namespace atest
             SqlHelper.InsertTable(conn, dt, "dbtest");
         } 
 
-        public static void Del(DataTable dt, string key)
+        public static DataTable Get(ref int val)
         {
-            using (SqlConnection _conn = new SqlConnection(conn))
-            {
-                _conn.Open();
-                using (SqlCommand cmd = _conn.CreateCommand())
-                {
-                    cmd.CommandText = "select * from dbtest";
-                    using (SqlDataAdapter da = new SqlDataAdapter(cmd))
-                    {
-                        var db = new DataTable();
-                        da.Fill(db);
-                        db.PrimaryKey = new DataColumn[] { db.Columns[key] }; 
-                        for (int i = 0; i < dt.Rows.Count; i++) db.Rows.Find(dt.Rows[i][key]).Delete();
-                        da.DeleteCommand = new SqlCommandBuilder(da).GetDeleteCommand();
-                        da.Update(db);
-                    }
-                }
-            }
+            var pm = new SqlParameter("@AYCOUNT", SqlDbType.Int);
+            var dt = SqlHelper.Read(conn, "select *,@AYCONUT=COUNT(*) from dbtest", new SqlParameter[] { pm });
+            val = (int)pm.Value;
+            return dt;
         }
+
+
+
+
 
     }
 }

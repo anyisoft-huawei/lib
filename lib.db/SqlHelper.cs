@@ -194,9 +194,17 @@ namespace lib.db
             /// </summary>
             Select,
             /// <summary>
+            /// 将数据表中的数据更新到数据库
+            /// </summary>
+            Insert,
+            /// <summary>
             /// 将数据表中的数据更新或插入到数据库
             /// </summary>
             InsertOrUpdate,
+            /// <summary>
+            /// 将数据表中的数据插入到数据库
+            /// </summary>
+            Update,
             /// <summary>
             /// 将数据表中的数据从数据库删除
             /// </summary>
@@ -227,6 +235,11 @@ namespace lib.db
                     da.Fill(db);//下载数据
                     switch (up)
                     {
+                        case UpdateType.Insert:
+                            foreach (DataRow item in dt.Rows) db.ImportRow(item);
+                            da.InsertCommand = new SqlCommandBuilder(da).GetInsertCommand();
+                            da.Update(db);//提交修改
+                            break;
                         case UpdateType.InsertOrUpdate:
                             db.PrimaryKey = new DataColumn[] { db.Columns[key] };//设置主键                         
                             var div = new Dictionary<int, int>();
@@ -253,13 +266,33 @@ namespace lib.db
                             var cb = new SqlCommandBuilder(da);
                             da.UpdateCommand = cb.GetUpdateCommand();
                             da.InsertCommand = cb.GetInsertCommand();
-                            da.Update(dt);//提交修改
+                            da.Update(db);//提交修改
+                            break;
+                        case UpdateType.Update:
+                            db.PrimaryKey = new DataColumn[] { db.Columns[key] };//设置主键                         
+                            var diu = new Dictionary<int, int>();
+                            for (int i = 0; i < dt.Columns.Count; i++)//获取列映射
+                            {
+                                int p = db.Columns.IndexOf(dt.Columns[i].ColumnName);
+                                if (p >= 0) diu.Add(i, p);
+                            }
+                            for (int i = dt.Rows.Count - 1; i >= 0; i--)//要修改的数据
+                            {
+                                var dr = db.Rows.Find(dt.Rows[i][key]);//以主键查找数据行
+                                if (null != dr)//对行进行修改
+                                {
+                                    foreach (var k in diu.Keys) dr[diu[k]] = dt.Rows[i][k];//修改行
+                                    dt.Rows.RemoveAt(i);//移除已修改行
+                                }
+                            }
+                            da.UpdateCommand = new SqlCommandBuilder(da).GetUpdateCommand();
+                            da.Update(db);//提交修改
                             break;
                         case UpdateType.Delete:
                             db.PrimaryKey = new DataColumn[] { db.Columns[key] };//设置主键
                             for (int i = 0; i < dt.Rows.Count; i++) db.Rows.Find(dt.Rows[i][key])?.Delete();//标记删除
                             da.DeleteCommand = new SqlCommandBuilder(da).GetDeleteCommand();
-                            da.Update(dt);//提交修改
+                            da.Update(db);//提交修改
                             break;
                         default:
                             break;

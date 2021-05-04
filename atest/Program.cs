@@ -19,9 +19,11 @@ namespace atest
                 string val = "[{'id':1},{'id':2},{'id':3},{'id':4}]";
                 var dt = JsonConvert.DeserializeObject<System.Data.DataTable>(val);
                 dt.TableName = "dbtest";
-               
+                for (int i = 0; i < 16; i++)
+                {
+                    
+                }
 
-                domedb.Del(dt, "id");
 
                 Console.Out.WriteLine(string.Format(":{0}", Get(3)[1].i));
                 Console.Out.WriteLine(string.Format(":{0}", Get(3)[0].i));

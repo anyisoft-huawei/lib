@@ -5,13 +5,13 @@ using System.Runtime.InteropServices;
 // 有关程序集的一般信息由以下
 // 控制。更改这些特性值可修改
 // 与程序集关联的信息。
-[assembly: AssemblyTitle("lib.mvvm")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("C#项目帮助库")]
+[assembly: AssemblyDescription("DLL库")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("HP Inc.")]
-[assembly: AssemblyProduct("lib.mvvm")]
-[assembly: AssemblyCopyright("Copyright © HP Inc. 2021")]
-[assembly: AssemblyTrademark("")]
+[assembly: AssemblyCompany("襄阳趋势软件科技有限公司")]
+[assembly: AssemblyProduct("C#项目帮助库")]
+[assembly: AssemblyCopyright("Copyright @2021 襄阳趋势软件科技有限公司 版权所有(C)")]
+[assembly: AssemblyTrademark("anyisoft")]
 [assembly: AssemblyCulture("")]
 
 // 将 ComVisible 设置为 false 会使此程序集中的类型
