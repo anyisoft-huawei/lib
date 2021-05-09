@@ -41,6 +41,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "adomeform", "atestform\adom
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "zfapi", "zfapi\zfapi.csproj", "{537D0BE5-E165-4AC4-A761-E64399A7E074}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "lib.woff", "lib.woff\lib.woff.csproj", "{AE3E1747-296D-4DE7-AFBF-0A9EED3A9394}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "lib.zip", "lib.zip\lib.zip.csproj", "{C38A6ED3-A88A-4202-B54D-EDD491F62DE6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -123,6 +127,14 @@ Global
 		{537D0BE5-E165-4AC4-A761-E64399A7E074}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{537D0BE5-E165-4AC4-A761-E64399A7E074}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{537D0BE5-E165-4AC4-A761-E64399A7E074}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AE3E1747-296D-4DE7-AFBF-0A9EED3A9394}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AE3E1747-296D-4DE7-AFBF-0A9EED3A9394}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AE3E1747-296D-4DE7-AFBF-0A9EED3A9394}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AE3E1747-296D-4DE7-AFBF-0A9EED3A9394}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C38A6ED3-A88A-4202-B54D-EDD491F62DE6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C38A6ED3-A88A-4202-B54D-EDD491F62DE6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C38A6ED3-A88A-4202-B54D-EDD491F62DE6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C38A6ED3-A88A-4202-B54D-EDD491F62DE6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

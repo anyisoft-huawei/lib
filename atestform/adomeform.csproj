@@ -17,7 +17,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>..\..\..\out\adomeform\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -79,9 +79,21 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\lib.file\lib.file.csproj">
+      <Project>{f10563ef-e014-4805-be29-61e2cce731d5}</Project>
+      <Name>lib.file</Name>
+    </ProjectReference>
     <ProjectReference Include="..\lib.pdf\lib.pdf.csproj">
       <Project>{bea953e3-b167-4671-ba2a-ae245bf0b52b}</Project>
       <Name>lib.pdf</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\lib.woff\lib.woff.csproj">
+      <Project>{ae3e1747-296d-4de7-afbf-0a9eed3a9394}</Project>
+      <Name>lib.woff</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\lib.zip\lib.zip.csproj">
+      <Project>{c38a6ed3-a88a-4202-b54d-edd491f62de6}</Project>
+      <Name>lib.zip</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

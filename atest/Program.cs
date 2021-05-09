@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using lib.icv;
 using Newtonsoft.Json;
+using System.IO;
 
 namespace atest
 {
@@ -19,10 +20,13 @@ namespace atest
                 string val = "[{'id':1},{'id':2},{'id':3},{'id':4}]";
                 var dt = JsonConvert.DeserializeObject<System.Data.DataTable>(val);
                 dt.TableName = "dbtest";
-                for (int i = 0; i < 16; i++)
+                using (File.AppendText("uncode.html"))
                 {
-                    
-                }
+                    for (int i = 0; i < 16; i++)
+                    {
+
+                    }
+                } 
 
 
                 Console.Out.WriteLine(string.Format(":{0}", Get(3)[1].i));
