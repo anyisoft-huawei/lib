@@ -171,6 +171,31 @@ namespace lib.obj
             return list;
         }
 
+        /// <summary>
+        /// 将列表(字段)转为数据表
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="_list">对象列表</param>
+        /// <returns></returns>
+        public static System.Data.DataTable ToDataTableFields<T>(this List<T> _list)
+        {
+            var dt = new System.Data.DataTable();
+            var fs = typeof(T).GetFields();
+            foreach (var item in fs)
+            {
+                dt.Columns.Add(item.Name, item.FieldType);
+            }
+            foreach (var item in _list)
+            {
+                var dr = dt.NewRow();
+                foreach (var key in fs)
+                {
+                    dr[key.Name] = key.GetValue(item);
+                }
+                dt.Rows.Add(dr);
+            }
+            return dt;
+        }
 
 
     }
