@@ -5,10 +5,10 @@ using System.Drawing.Printing;
 
 namespace lib.print
 {
-    public  class UsePrint 
+    public  class PrintHelper 
     {
 
-        public UsePrint()
+        public PrintHelper()
         {
           
         }
